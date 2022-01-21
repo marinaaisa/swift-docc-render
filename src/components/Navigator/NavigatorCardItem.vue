@@ -1,8 +1,11 @@
 <template>
   <div
+    :id="item.uid"
     class="navigator-card-item"
     :class="{ expanded, 'extra-info': showExtendedInfo }"
     :style="{ '--nesting-index': item.depth }"
+    :aria-owns="item.childUIDs.length ? item.childUIDs : null"
+    :role="item.childUIDs.length ? 'list': 'listitem'"
   >
     <div class="head-wrapper" :class="{ active: isActive, 'is-group': isGroupMarker }">
       <button
