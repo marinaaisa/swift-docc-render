@@ -37,7 +37,7 @@
 <script>
 import TutorialsOverviewStore from 'docc-render/stores/TutorialsOverviewStore';
 
-import pageTitle from 'docc-render/mixins/pageTitle';
+import metadata from 'docc-render/mixins/metadata';
 import Hero from './TutorialsOverview/Hero.vue';
 import LearningPath from './TutorialsOverview/LearningPath.vue';
 import Nav from './TutorialsOverview/Nav.vue';
@@ -55,7 +55,7 @@ export default {
     LearningPath,
     Nav,
   },
-  mixins: [pageTitle],
+  mixins: [metadata],
   constants: { SectionKind },
   inject: {
     isTargetIDE: { default: false },
@@ -78,7 +78,10 @@ export default {
     },
   },
   computed: {
-    pageTitle: ({ title }) => [title, 'Tutorials'].join(' '),
+    pageTitle: ({ title }) => [title, 'Tutorials'].filter(Boolean).join(' '),
+    pageDescription: ({ heroSection, extractText }) => (
+      extractText(heroSection.content[0].inlineContent)
+    ),
     partitionedSections: ({ sections }) => sections.reduce(([heroes, others], section) => (
       section.kind === SectionKind.hero ? (
         [heroes.concat(section), others]
