@@ -28,10 +28,7 @@
       <AdjustableSidebarWidth
         class="full-width-container"
         :open-externally.sync="isSideNavOpen"
-        :min-width-percent="30"
-        :max-width-percent="60"
         :hide-sidebar="isTargetIDE"
-        @width-change="handleWidthChange"
       >
         <template #aside>
           <aside class="doc-topic-aside">
@@ -41,7 +38,6 @@
             >
               <template #default="slotProps">
                 <Navigator
-                  :show-extra-info="showExtraNavigatorInfo"
                   :parent-topic-identifiers="navigatorParentTopicIdentifiers"
                   :technology="slotProps.technology || technology"
                   :is-fetching="slotProps.isFetching"
@@ -86,8 +82,6 @@ import AdjustableSidebarWidth from 'docc-render/components/AdjustableSidebarWidt
 import Navigator from 'docc-render/components/Navigator.vue';
 import DocumentationNav from 'theme/components/DocumentationTopic/DocumentationNav.vue';
 
-const EXTRA_INFO_THRESHOLD = 500;
-
 export default {
   name: 'DocumentationTopicView',
   components: {
@@ -98,14 +92,12 @@ export default {
     CodeTheme,
     Nav: DocumentationNav,
   },
-  constants: { EXTRA_INFO_THRESHOLD },
   mixins: [performanceMetrics, onPageLoadScrollToFragment],
   data() {
     return {
       topicDataDefault: null,
       topicDataObjc: null,
       isSideNavOpen: false,
-      showExtraNavigatorInfo: false,
       store: DocumentationTopicStore,
     };
   },
@@ -150,10 +142,12 @@ export default {
           conformance,
           modules,
           platforms,
-          required: isRequirement,
+          required: isRequirement = false,
           roleHeading,
           title = '',
           tags = [],
+          role,
+          symbolKind = '',
         } = {},
         primaryContentSections,
         relationshipsSections,
@@ -172,6 +166,7 @@ export default {
         downloadNotAvailableSummary,
         diffAvailability,
         hierarchy,
+        role,
         identifier,
         interfaceLanguage,
         isRequirement,
@@ -188,6 +183,7 @@ export default {
         variantOverrides,
         variants,
         extendsTechnology,
+        symbolKind,
         tags: tags.slice(0, 1), // make sure we only show the first tag
       };
     },
@@ -236,9 +232,6 @@ export default {
     },
     handleCodeColorsChange(codeColors) {
       CodeThemeStore.updateCodeColors(codeColors);
-    },
-    handleWidthChange(width) {
-      this.showExtraNavigatorInfo = width > EXTRA_INFO_THRESHOLD;
     },
   },
   mounted() {
@@ -307,6 +300,7 @@ export default {
 .doc-topic-view {
   display: flex;
   flex-flow: column;
+  background: var(--color-fill-secondary);
 }
 
 .doc-topic-aside {
@@ -320,6 +314,7 @@ export default {
 .full-width-container {
   flex: 1 1 auto;
   width: 100%;
+  background: var(--colors-text-background, var(--color-text-background));
 
   @include inTargetWeb {
     @include breakpoint-full-width-container()

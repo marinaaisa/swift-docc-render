@@ -1,12 +1,22 @@
+<!--
+  This source file is part of the Swift.org open source project
+
+  Copyright (c) 2021 Apple Inc. and the Swift project authors
+  Licensed under Apache License v2.0 with Runtime Library Exception
+
+  See https://swift.org/LICENSE.txt for license information
+  See https://swift.org/CONTRIBUTORS.txt for Swift project authors
+-->
+
 <template>
   <div class="navigator" :style="{ '--sticky-top-offset': topOffset }">
     <NavigatorCard
       v-if="!isFetching"
       :technology="technology.title"
+      :technology-path="technology.path || technology.url"
       :kind="kind"
       :children="flatChildren"
       :active-path="activePath"
-      :show-extended-info="showExtraInfo"
       @close="$emit('close')"
     />
     <div v-else>
@@ -47,10 +57,6 @@ export default {
     parentTopicIdentifiers: {
       type: Array,
       required: true,
-    },
-    showExtraInfo: {
-      type: Boolean,
-      default: false,
     },
     technology: {
       type: Object,

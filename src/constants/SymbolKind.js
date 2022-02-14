@@ -8,10 +8,13 @@
  * See https://swift.org/CONTRIBUTORS.txt for Swift project authors
 */
 
-import { escapeRegExp, whiteSpaceIgnorantRegex } from 'docc-render/utils/strings';
-
-// eslint-disable-next-line import/prefer-default-export
-export function safeHighlightPattern(text) {
-  const sanitizedText = whiteSpaceIgnorantRegex(escapeRegExp(text));
-  return new RegExp(sanitizedText, 'ig');
-}
+// Note: this is not an exhaustive/complete definition of all the various kinds
+// that may be emitted by DocC in Render JSON at the moment—only the ones that
+// the renderer cares about for the time being.
+export default {
+  class: 'class',
+  enum: 'enum',
+  protocol: 'protocol',
+  struct: 'struct',
+  uid: 'uid',
+};

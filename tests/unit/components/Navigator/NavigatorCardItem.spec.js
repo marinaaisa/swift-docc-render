@@ -1,3 +1,13 @@
+/**
+ * This source file is part of the Swift.org open source project
+ *
+ * Copyright (c) 2021 Apple Inc. and the Swift project authors
+ * Licensed under Apache License v2.0 with Runtime Library Exception
+ *
+ * See https://swift.org/LICENSE.txt for license information
+ * See https://swift.org/CONTRIBUTORS.txt for Swift project authors
+*/
+
 import NavigatorCardItem from '@/components/Navigator/NavigatorCardItem.vue';
 import { RouterLinkStub, shallowMount } from '@vue/test-utils';
 import { TopicKind } from '@/constants/kinds';
@@ -14,7 +24,6 @@ const defaultProps = {
     abstract: [{ type: 'text', text: 'abstract' }],
   },
   expanded: false,
-  showExtendedInfo: false,
   filterPattern: /foo/gi,
   isActive: false,
 };
@@ -41,7 +50,6 @@ describe('NavigatorCardItem', () => {
       text: defaultProps.item.title,
       matcher: defaultProps.filterPattern,
     });
-    expect(wrapper.find('.extended-content').props('content')).toEqual(defaultProps.item.abstract);
   });
 
   it('does not render the expand button, if has no children', () => {
@@ -64,15 +72,6 @@ describe('NavigatorCardItem', () => {
     });
     expect(wrapper.classes()).toContain('expanded');
     expect(wrapper.find('.chevron').classes()).toContain('rotate');
-  });
-
-  it('adds extra classes, when `showExtendedInfo == true`', () => {
-    const wrapper = createWrapper({
-      propsData: {
-        showExtendedInfo: true,
-      },
-    });
-    expect(wrapper.classes()).toContain('extra-info');
   });
 
   it('adds extra classes when active', () => {

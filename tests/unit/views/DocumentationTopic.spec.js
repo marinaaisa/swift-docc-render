@@ -20,6 +20,10 @@ import Navigator from '@/components/Navigator.vue';
 import { flushPromises } from '../../../test-utils';
 
 jest.mock('docc-render/mixins/onPageLoadScrollToFragment');
+jest.mock('docc-render/utils/FocusTrap');
+jest.mock('docc-render/utils/changeElementVOVisibility');
+jest.mock('docc-render/utils/scroll-lock');
+
 const TechnologyWithChildren = {
   path: 'path/to/foo',
   children: [],
@@ -52,6 +56,7 @@ const topicData = {
   },
   metadata: {
     roleHeading: 'Thing',
+    role: 'article',
     title: 'FooKit',
     platforms: [
       {
@@ -61,6 +66,7 @@ const topicData = {
         name: 'barOS',
       },
     ],
+    symbolKind: 'foo-type',
   },
   primaryContentSections: [],
   references: {
@@ -88,8 +94,6 @@ const topicData = {
     },
   ],
 };
-
-const { EXTRA_INFO_THRESHOLD } = DocumentationTopic.constants;
 
 describe('DocumentationTopic', () => {
   /** @type {import('@vue/test-utils').Wrapper} */
@@ -130,33 +134,31 @@ describe('DocumentationTopic', () => {
     wrapper.setData({ topicData });
     expect(wrapper.find(AdjustableSidebarWidth).props()).toEqual({
       hideSidebar: false,
-      maxWidth: 1800,
-      minWidth: 320,
       openExternally: false,
     });
+    const technology = topicData.references['topic://foo'];
     expect(wrapper.find(NavigatorDataProvider).props()).toEqual({
       interfaceLanguage: Language.swift.key.url,
-      technology: topicData.references['topic://foo'],
+      technology,
     });
-    expect(wrapper.find(Navigator).exists()).toBe(false);
-    expect(dataUtils.fetchIndexPathsData).toHaveBeenCalledTimes(1);
-    await flushPromises();
+    // its rendered by default
     const navigator = wrapper.find(Navigator);
     expect(navigator.exists()).toBe(true);
+    expect(navigator.props()).toEqual({
+      isFetching: true,
+      parentTopicIdentifiers: topicData.hierarchy.paths[0],
+      references: topicData.references,
+      // assert we are passing the default technology, if we dont have the children yet
+      technology,
+    });
+    expect(dataUtils.fetchIndexPathsData).toHaveBeenCalledTimes(1);
+    await flushPromises();
     expect(navigator.props()).toEqual({
       isFetching: false,
       parentTopicIdentifiers: topicData.hierarchy.paths[0],
       references: topicData.references,
-      showExtraInfo: false,
       technology: TechnologyWithChildren,
     });
-  });
-
-  it('handles `@width-change`, on the AdjustableSidebarWidth', async () => {
-    wrapper.setData({ topicData });
-    await flushPromises();
-    wrapper.find(AdjustableSidebarWidth).vm.$emit('width-change', EXTRA_INFO_THRESHOLD + 50);
-    expect(wrapper.find(Navigator).props('showExtraInfo')).toBe(true);
   });
 
   it('renders a `Nav` component', () => {
@@ -184,6 +186,7 @@ describe('DocumentationTopic', () => {
 
   it('handles the `@close`, on Navigator', async () => {
     wrapper.setData({ topicData });
+    await flushPromises();
     const nav = wrapper.find(Nav);
     nav.vm.$emit('toggle-sidenav');
     const sidebar = wrapper.find(AdjustableSidebarWidth);
@@ -198,6 +201,13 @@ describe('DocumentationTopic', () => {
 
     const topic = wrapper.find(Topic);
     expect(topic.exists()).toBe(true);
+    expect(topic.props()).toEqual({
+      ...wrapper.vm.topicProps,
+      isSymbolBeta: false,
+      isSymbolDeprecated: false,
+      objcPath: topicData.variants[0].paths[0],
+      swiftPath: topicData.variants[1].paths[0],
+    });
   });
 
   it('computes isSymbolBeta', () => {

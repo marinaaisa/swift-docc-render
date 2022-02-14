@@ -1,26 +1,32 @@
+<!--
+  This source file is part of the Swift.org open source project
+
+  Copyright (c) 2021 Apple Inc. and the Swift project authors
+  Licensed under Apache License v2.0 with Runtime Library Exception
+
+  See https://swift.org/LICENSE.txt for license information
+  See https://swift.org/CONTRIBUTORS.txt for Swift project authors
+-->
+
 <template>
   <div class="NavigatorLeafIcon">
-    <component :is="icon" v-bind="iconProps" class="icon-inline" />
+    <component :is="icon" v-bind="iconProps" class="icon-inline" :style="styles" />
   </div>
 </template>
 
 <script>
-import SingleLetterSymbolIcon from 'theme/components/Icons/SingleLetterSymbolIcon.vue';
-import CurlyBracketsIcon from 'theme/components/Icons/CurlyBracketsIcon.vue';
-import TwoLetterSymbolIcon from 'theme/components/Icons/TwoLetterSymbolIcon.vue';
-import CollectionIcon from 'theme/components/Icons/CollectionIcon.vue';
-import ArticleIcon from 'theme/components/Icons/ArticleIcon.vue';
 import PathIcon from 'theme/components/Icons/PathIcon.vue';
+import TopicModuleIcon from 'theme/components/Icons/TopicModuleIcon.vue';
+import ArticleIcon from 'theme/components/Icons/ArticleIcon.vue';
 import TutorialIcon from 'theme/components/Icons/TutorialIcon.vue';
-import ModuleIcon from 'theme/components/Icons/ModuleIcon.vue';
-import { TopicKind } from 'docc-render/constants/kinds';
-
-export const KindAliases = {
-  [TopicKind.init]: TopicKind.method,
-  [TopicKind.typeMethod]: TopicKind.method,
-  [TopicKind.typeProperty]: TopicKind.property,
-  [TopicKind.enumCase]: TopicKind.enum,
-};
+import TopicFuncIcon from 'theme/components/Icons/TopicFuncIcon.vue';
+import CollectionIcon from 'theme/components/Icons/CollectionIcon.vue';
+import TopicFuncOpIcon from 'theme/components/Icons/TopicFuncOpIcon.vue';
+import CurlyBracketsIcon from 'theme/components/Icons/CurlyBracketsIcon.vue';
+import TopicSubscriptIcon from 'theme/components/Icons/TopicSubscriptIcon.vue';
+import TwoLetterSymbolIcon from 'theme/components/Icons/TwoLetterSymbolIcon.vue';
+import SingleLetterSymbolIcon from 'theme/components/Icons/SingleLetterSymbolIcon.vue';
+import { TopicKind, TopicKindAliases, TopicKindColorsMap } from 'docc-render/constants/kinds';
 
 export const TopicKindIcons = {
   [TopicKind.article]: ArticleIcon,
@@ -31,23 +37,22 @@ export const TopicKindIcons = {
   [TopicKind.container]: CollectionIcon,
   [TopicKind.enum]: SingleLetterSymbolIcon,
   [TopicKind.extension]: TwoLetterSymbolIcon,
-  [TopicKind.func]: SingleLetterSymbolIcon,
-  [TopicKind.funcOp]: SingleLetterSymbolIcon,
+  [TopicKind.func]: TopicFuncIcon,
+  [TopicKind.funcOp]: TopicFuncOpIcon,
   [TopicKind.httpRequest]: SingleLetterSymbolIcon,
   [TopicKind.languageGroup]: CollectionIcon,
   [TopicKind.learn]: PathIcon,
   [TopicKind.method]: SingleLetterSymbolIcon,
   [TopicKind.macro]: SingleLetterSymbolIcon,
-  [TopicKind.module]: ModuleIcon,
+  [TopicKind.module]: TopicModuleIcon,
   [TopicKind.overview]: PathIcon,
   [TopicKind.protocol]: TwoLetterSymbolIcon,
   [TopicKind.property]: SingleLetterSymbolIcon,
   [TopicKind.propertyListKey]: SingleLetterSymbolIcon,
-  [TopicKind.propertyListKeyReference]: SingleLetterSymbolIcon,
   [TopicKind.resources]: PathIcon,
   [TopicKind.sampleCode]: CurlyBracketsIcon,
   [TopicKind.struct]: SingleLetterSymbolIcon,
-  [TopicKind.subscript]: SingleLetterSymbolIcon,
+  [TopicKind.subscript]: TopicSubscriptIcon,
   [TopicKind.symbol]: CollectionIcon,
   [TopicKind.tutorial]: TutorialIcon,
   [TopicKind.typealias]: SingleLetterSymbolIcon,
@@ -56,24 +61,20 @@ export const TopicKindIcons = {
 };
 
 export const TopicKindProps = {
-  [TopicKind.class]: { symbol: 'C', class: 'purple' },
-  [TopicKind.dictionarySymbol]: { symbol: 'O', class: 'purple' },
-  [TopicKind.enum]: { symbol: 'E', class: 'orange' },
-  [TopicKind.extension]: { symbols: ['E', 'x'], class: 'orange' },
-  [TopicKind.func]: { symbol: 'ƒ', class: 'green' },
-  [TopicKind.funcOp]: { symbol: '⁺⁄₋', class: 'green' },
-  [TopicKind.httpRequest]: { symbol: 'E', class: 'green' },
-  [TopicKind.method]: { symbol: 'M', class: 'blue' },
-  [TopicKind.macro]: { symbol: '#', class: 'pink' },
-  [TopicKind.protocol]: { symbols: ['P', 'r'], class: 'purple' },
-  [TopicKind.property]: { symbol: 'P', class: 'teal' },
-  [TopicKind.propertyListKey]: { symbol: 'K', class: 'green' },
-  [TopicKind.propertyListKeyReference]: { symbol: 'K', class: 'green' },
-  [TopicKind.struct]: { symbol: 'S', class: 'purple' },
-  [TopicKind.subscript]: { symbol: '[ ]', y: 10, class: 'blue' },
-  [TopicKind.typealias]: { symbol: 'T', class: 'orange' },
-  [TopicKind.union]: { symbol: 'U', class: 'purple' },
-  [TopicKind.var]: { symbol: 'V', class: 'purple' },
+  [TopicKind.class]: { symbol: 'C' },
+  [TopicKind.dictionarySymbol]: { symbol: 'O' },
+  [TopicKind.enum]: { symbol: 'E' },
+  [TopicKind.extension]: { symbols: ['E', 'x'] },
+  [TopicKind.httpRequest]: { symbol: 'E' },
+  [TopicKind.method]: { symbol: 'M' },
+  [TopicKind.macro]: { symbol: '#' },
+  [TopicKind.protocol]: { symbols: ['P', 'r'] },
+  [TopicKind.property]: { symbol: 'P' },
+  [TopicKind.propertyListKey]: { symbol: 'K' },
+  [TopicKind.struct]: { symbol: 'S' },
+  [TopicKind.typealias]: { symbol: 'T' },
+  [TopicKind.union]: { symbol: 'U' },
+  [TopicKind.var]: { symbol: 'V' },
 };
 
 export default {
@@ -90,13 +91,11 @@ export default {
     },
   },
   computed: {
-    normalisedKind: ({ kind }) => KindAliases[kind] || kind,
+    normalisedKind: ({ kind }) => TopicKindAliases[kind] || kind,
     icon: ({ normalisedKind }) => TopicKindIcons[normalisedKind] || CollectionIcon,
-    iconProps: ({ normalisedKind, withColors }) => {
-      const allProps = TopicKindProps[normalisedKind] || {};
-      const { class: classes, ...props } = allProps;
-      return !withColors ? props : allProps;
-    },
+    iconProps: ({ normalisedKind }) => TopicKindProps[normalisedKind] || {},
+    color: ({ normalisedKind }) => TopicKindColorsMap[normalisedKind],
+    styles: ({ color, withColors }) => (withColors && color ? { color: `var(--color-kind-icon-${color})` } : {}),
   },
 };
 </script>
@@ -109,34 +108,11 @@ export default {
   height: 1em;
   margin-right: 5px;
   flex: 0 0 auto;
+  color: var(--color-figure-gray-secondary);
 
   svg {
     width: 100%;
     height: 100%;
   }
-}
-
-.orange {
-  color: var(--color-navigator-orange, var(--color-figure-gray-secondary));
-}
-
-.green {
-  color: var(--color-navigator-green, var(--color-figure-gray-secondary));
-}
-
-.blue {
-  color: var(--color-navigator-blue, var(--color-figure-gray-secondary));
-}
-
-.pink {
-  color: var(--color-navigator-pink, var(--color-figure-gray-secondary));
-}
-
-.teal {
-  color: var(--color-navigator-teal, var(--color-figure-gray-secondary));
-}
-
-.purple {
-  color: var(--color-navigator-purple, var(--color-figure-gray-secondary));
 }
 </style>

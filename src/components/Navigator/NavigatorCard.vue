@@ -1,13 +1,25 @@
+<!--
+  This source file is part of the Swift.org open source project
+
+  Copyright (c) 2021 Apple Inc. and the Swift project authors
+  Licensed under Apache License v2.0 with Runtime Library Exception
+
+  See https://swift.org/LICENSE.txt for license information
+  See https://swift.org/CONTRIBUTORS.txt for Swift project authors
+-->
+
 <template>
   <div class="navigator-card">
-    <div class="head-wrapper" :class="{ 'extra-info': showExtendedInfo }">
+    <div class="head-wrapper">
       <button class="close-card-mobile" @click="$emit('close')">
         <InlineCloseIcon class="icon-inline close-icon" />
       </button>
-      <NavigatorLeafIcon :kind="kind" class="card-icon" />
-      <span class="card-link">
-        {{ technology }}
-      </span>
+      <Reference :url="technologyPath" class="navigator-head">
+        <NavigatorLeafIcon :kind="kind" with-colors class="card-icon" />
+        <div class="card-link">
+          {{ technology }}
+        </div>
+      </Reference>
     </div>
     <div class="card-body">
       <RecycleScroller
@@ -22,7 +34,6 @@
         <NavigatorCardItem
           :item="item"
           :filter-pattern="filterPattern"
-          :show-extended-info="showExtendedInfo"
           :is-active="item.uid === activeUID"
           :is-bold="activePathMap[item.uid]"
           :expanded="openNodes[item.uid]"
@@ -39,7 +50,7 @@
         </template>
       </div>
     </div>
-    <div class="card-slot">
+    <div class="filter-wrapper">
       <div class="navigator-filter">
         <div class="input-wrapper">
           <FilterIcon class="icon-inline filter-icon" :class="{ colored: filter }" />
@@ -74,6 +85,7 @@ import NavigatorCardItem from 'docc-render/components/Navigator/NavigatorCardIte
 import InlineCloseIcon from 'theme/components/Icons/InlineCloseIcon.vue';
 import FilterIcon from 'theme/components/Icons/FilterIcon.vue';
 import ClearRoundedIcon from 'theme/components/Icons/ClearRoundedIcon.vue';
+import Reference from 'docc-render/components/ContentNode/Reference.vue';
 
 export const STORAGE_KEYS = {
   filter: 'navigator.filter',
@@ -96,6 +108,7 @@ export default {
     NavigatorCardItem,
     NavigatorLeafIcon,
     RecycleScroller,
+    Reference,
   },
   props: {
     technology: {
@@ -118,6 +131,10 @@ export default {
       type: String,
       required: true,
     },
+    technologyPath: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -134,9 +151,9 @@ export default {
       // remove the `g` for global, as that causes bugs when matching
       : new RegExp(safeHighlightPattern(filter), 'i')),
     /**
-     * Return the item size for the Scroller element. Its higher when we show extra info.
+     * Return the item size for the Scroller element.
      */
-    itemSize: ({ showExtendedInfo }) => (showExtendedInfo ? LEAF_SIZES.max : LEAF_SIZES.min),
+    itemSize: () => LEAF_SIZES.min,
     /**
      * Generates a map of the children, with the uid as the key.
      * @return {Object.<string, NavigatorFlatItem>}
@@ -409,6 +426,9 @@ export default {
 @import 'docc-render/styles/_core.scss';
 @import '~vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
+$navigator-card-horizontal-spacing: 20px !default;
+$navigator-card-vertical-spacing: 18px !default;
+
 .navigator-card {
   overflow: hidden auto;
   height: 100%;
@@ -416,11 +436,18 @@ export default {
   flex-direction: column;
 
   .head-wrapper {
-    padding: 10px 36px;
+    position: relative;
+  }
+
+  .navigator-head {
+    padding: 10px $navigator-card-horizontal-spacing;
     border-bottom: 1px solid var(--color-grid);
     display: flex;
     align-items: baseline;
-    position: relative;
+
+    &.router-link-exact-active {
+      background: var(--color-fill-gray-quaternary);
+    }
 
     @include breakpoint(small) {
       justify-content: center;
@@ -430,11 +457,10 @@ export default {
   .card-icon {
     width: 19px;
     height: 19px;
-    color: var(--color-figure-blue);
   }
 
   @include breakpoint(small) {
-    .card-slot {
+    .filter-wrapper {
       order: 2;
     }
     .card-body {
@@ -446,6 +472,7 @@ export default {
 .no-items-wrapper {
   color: var(--color-figure-gray-tertiary);
   @include font-styles(body-reduced);
+  padding: var(--card-vertical-spacing) 0;
 }
 
 .close-card-mobile {
@@ -453,6 +480,7 @@ export default {
   position: absolute;
   left: 20px;
   top: 50%;
+  z-index: 1;
   transform: translateY(-50%);
   color: var(--color-link);
 
@@ -466,15 +494,17 @@ export default {
 }
 
 .card-body {
-  --card-horizontal-spacing: 32px;
-  padding: 18px var(--card-horizontal-spacing);
+  --card-horizontal-spacing: #{$navigator-card-horizontal-spacing};
+  --card-vertical-spacing: #{$navigator-card-vertical-spacing};
+
+  padding: 0 var(--card-horizontal-spacing);
   // right padding is added by the items, so visually the scroller is stuck to the side
   padding-right: 0;
   flex: 1 1 auto;
   min-height: 0;
   @include breakpoint(small) {
     --card-horizontal-spacing: 20px;
-    padding-top: 0;
+    --card-vertical-spacing: 0px;
   }
 }
 
@@ -549,5 +579,7 @@ export default {
 
 .scroller {
   height: 100%;
+  box-sizing: border-box;
+  padding: var(--card-vertical-spacing) 0;
 }
 </style>
