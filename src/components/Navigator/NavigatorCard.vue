@@ -26,6 +26,8 @@
         v-show="nodesToRender.length"
         ref="scroller"
         class="scroller"
+        role="tree"
+        aria-label="Sidebar Tree Navigator"
         :items="nodesToRender"
         :item-size="itemSize"
         key-field="uid"
@@ -34,7 +36,7 @@
       >
         <NavigatorCardItem
           :item="item"
-          :active="active"
+          :isRendered="active"
           :filter-pattern="filterPattern"
           :is-active="item.uid === activeUID"
           :is-bold="activePathMap[item.uid]"

@@ -13,13 +13,20 @@
     class="navigator-card-item"
     :class="{ expanded }"
     :style="{ '--nesting-index': item.depth }"
-    :aria-hidden="active ? null : 'true'"
+    :aria-hidden="isRendered ? null : 'true'"
+    :id="`container-${item.uid}`"
+    :aria-owns="ariaOwns"
+    :aria-level="item.depth"
+    :role="isParent ? 'group': 'treeitem'"
   >
     <div class="head-wrapper" :class="{ active: isActive, 'is-group': isGroupMarker }">
       <button
         v-if="isParent"
         class="tree-toggle"
-        :tabindex="active ? null : '-1'"
+        :tabindex="isRendered ? null : '-1'"
+        :aria-label="`Toggle ${item.title}`"
+        :aria-controls="`container-${item.uid}`"
+        :aria-expanded="expanded ? 'true': 'false'"
         @click.exact.prevent="toggleTree"
         @click.alt.prevent="toggleEntireTree"
       >
@@ -73,7 +80,7 @@ export default {
     Reference,
   },
   props: {
-    active: {
+    isRendered: {
       type: Boolean,
       default: false,
     },
@@ -109,6 +116,10 @@ export default {
       const baseLabel = `${siblingsLabel} ${item.parent}`;
       if (!isParent) return baseLabel;
       return `${baseLabel} ${parentLabel}`;
+    },
+    ariaOwns({ item, isParent }) {
+      if (!isParent) return null;
+      return item.childUIDs.map(uid => `container-${uid}`).join(' ');
     },
   },
   methods: {
