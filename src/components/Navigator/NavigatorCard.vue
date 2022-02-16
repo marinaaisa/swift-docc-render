@@ -30,6 +30,8 @@
         :item-size="itemSize"
         key-field="uid"
         v-slot="{ item }"
+        @focus.capture.native="handleFocus"
+        @blur.capture.native="handleBlur"
       >
         <NavigatorCardItem
           :item="item"
@@ -458,6 +460,17 @@ export default {
         // call the scroll method on the `scroller` component.
         this.$refs.scroller.scrollToItem(index);
       }
+    },
+    handleFocus(event) {
+      console.log(event);
+    },
+    // TODO: This is very much a test
+    handleBlur(event) {
+      // if there is a related target, do nothing
+      if (event.relatedTarget !== null) return;
+      // if there is no related target re-focus the item
+      console.log('lost focus');
+      event.target.focus();
     },
   },
 };
