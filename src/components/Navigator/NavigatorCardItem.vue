@@ -15,8 +15,6 @@
     :style="{ '--nesting-index': item.depth }"
     :aria-hidden="isRendered ? null : 'true'"
     :id="`container-${item.uid}`"
-    :aria-owns="ariaOwns"
-    :aria-level="item.depth"
   >
     <div class="head-wrapper" :class="{ active: isActive, 'is-group': isGroupMarker }">
       <span
@@ -124,10 +122,6 @@ export default {
       const baseLabel = `${siblingsLabel} ${item.parent}`;
       if (!isParent) return baseLabel;
       return `${baseLabel} ${parentLabel}`;
-    },
-    ariaOwns({ item, isParent }) {
-      if (!isParent) return null;
-      return item.childUIDs.map(uid => `container-${uid}`).join(' ');
     },
   },
   methods: {
