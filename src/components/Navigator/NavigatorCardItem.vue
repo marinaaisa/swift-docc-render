@@ -13,11 +13,13 @@
     class="navigator-card-item"
     :class="{ expanded }"
     :style="{ '--nesting-index': item.depth }"
+    :aria-hidden="active ? null : 'true'"
   >
     <div class="head-wrapper" :class="{ active: isActive, 'is-group': isGroupMarker }">
       <button
         v-if="isParent"
         class="tree-toggle"
+        :tabindex="active ? null : '-1'"
         @click.exact.prevent="toggleTree"
         @click.alt.prevent="toggleEntireTree"
       >
@@ -43,6 +45,7 @@
           :class="{ bolded: isBold }"
           class="leaf-link"
           :aria-describedby="ariaDescribedBy"
+          :tabindex="active ? null : '-1'"
         >
           <HighlightMatches
             :text="item.title"
@@ -70,6 +73,10 @@ export default {
     Reference,
   },
   props: {
+    active: {
+      type: Boolean,
+      default: false,
+    },
     item: {
       type: Object,
       required: true,

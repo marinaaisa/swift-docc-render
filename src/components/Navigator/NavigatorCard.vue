@@ -29,12 +29,12 @@
         :items="nodesToRender"
         :item-size="itemSize"
         key-field="uid"
-        v-slot="{ item }"
-        @focus.capture.native="handleFocus"
+        v-slot="{ item, active }"
         @blur.capture.native="handleBlur"
       >
         <NavigatorCardItem
           :item="item"
+          :active="active"
           :filter-pattern="filterPattern"
           :is-active="item.uid === activeUID"
           :is-bold="activePathMap[item.uid]"
@@ -461,16 +461,21 @@ export default {
         this.$refs.scroller.scrollToItem(index);
       }
     },
-    handleFocus(event) {
-      console.log(event);
-    },
     // TODO: This is very much a test
     handleBlur(event) {
       // if there is a related target, do nothing
       if (event.relatedTarget !== null) return;
       // if there is no related target re-focus the item
-      console.log('lost focus');
-      event.target.focus();
+      console.log('lost focus', event.target);
+      const { y } = event.target.getBoundingClientRect();
+      console.log({ y });
+      if (y < 0) {
+        console.log('not visible');
+        return;
+      }
+      event.target.focus({
+        preventScroll: true,
+      });
     },
   },
 };
