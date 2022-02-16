@@ -14,6 +14,7 @@ import NavigatorCard from '@/components/Navigator/NavigatorCard.vue';
 import { baseNavStickyAnchorId } from 'docc-render/constants/nav';
 import throttle from '@/utils/throttle';
 import { TopicTypes } from '@/constants/TopicTypes';
+import { INDEX_ROOT_KEY } from '@/constants/sidebar';
 import { createEvent } from '../../../test-utils';
 
 jest.mock('@/utils/throttle', () => jest.fn(v => v));
@@ -200,7 +201,7 @@ describe('Navigator', () => {
         ],
         depth: 0,
         type: 'article',
-        parent: '<root>',
+        parent: INDEX_ROOT_KEY,
         path: '/foo/child0',
         title: 'Child0',
         uid: 551503843,
@@ -249,7 +250,7 @@ describe('Navigator', () => {
         ],
         depth: 0,
         type: 'tutorial',
-        parent: '<root>',
+        parent: INDEX_ROOT_KEY,
         path: '/foo/child1/',
         title: 'Child1',
         uid: -97593392,

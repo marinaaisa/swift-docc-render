@@ -14,7 +14,7 @@
       <button class="close-card-mobile" @click="$emit('close')">
         <InlineCloseIcon class="icon-inline close-icon" />
       </button>
-      <Reference :url="technologyPath" class="navigator-head">
+      <Reference :url="technologyPath" class="navigator-head" :id="INDEX_ROOT_KEY">
         <NavigatorLeafIcon :type="type" with-colors class="card-icon" />
         <div class="card-link">
           {{ technology }}
@@ -143,6 +143,7 @@ export default {
     };
   },
   computed: {
+    INDEX_ROOT_KEY: () => INDEX_ROOT_KEY,
     filterPattern: ({ filter }) => (!filter
       ? undefined
       // remove the `g` for global, as that causes bugs when matching

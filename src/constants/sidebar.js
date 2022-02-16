@@ -8,7 +8,7 @@
  * See https://swift.org/CONTRIBUTORS.txt for Swift project authors
 */
 
-export const INDEX_ROOT_KEY = '<root>';
+export const INDEX_ROOT_KEY = 'technology-root';
 export const LEAF_SIZES = {
   min: 32,
   max: 53,

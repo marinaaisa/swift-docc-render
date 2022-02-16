@@ -13,7 +13,7 @@ import { shallowMount } from '@vue/test-utils';
 import { TopicTypes } from '@/constants/TopicTypes';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import 'intersection-observer';
-import { LEAF_SIZES } from '@/constants/sidebar';
+import { INDEX_ROOT_KEY, LEAF_SIZES } from '@/constants/sidebar';
 import NavigatorCardItem from '@/components/Navigator/NavigatorCardItem.vue';
 import { sessionStorage } from 'docc-render/utils/storage';
 import Reference from '@/components/ContentNode/Reference.vue';
@@ -35,7 +35,7 @@ const root0 = {
   path: '/tutorials/fookit',
   title: 'TopLevel',
   uid: 0,
-  parent: '<root>',
+  parent: INDEX_ROOT_KEY,
   depth: 0,
   index: 0,
   childUIDs: [
@@ -85,7 +85,7 @@ const root1 = {
   path: '/documentation/fookit/gettingstarted',
   title: 'Getting Started',
   uid: 4,
-  parent: '<root>',
+  parent: INDEX_ROOT_KEY,
   depth: 0,
   index: 1,
   childUIDs: [],
