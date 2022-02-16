@@ -26,10 +26,10 @@
       >
         <InlineChevronRightIcon class="icon-inline chevron" :class="{ rotate: expanded }" />
       </button>
-      <NavigatorLeafIcon v-if="!isGroupMarker" :kind="item.kind" class="navigator-icon" />
+      <NavigatorLeafIcon v-if="!isGroupMarker" :type="item.type" class="navigator-icon" />
       <div class="title-container">
         <Reference
-          :url="item.path"
+          :url="item.path || ''"
           :isActive="!isGroupMarker"
           :class="{ bolded: isBold }"
           class="leaf-link"
@@ -49,7 +49,7 @@ import InlineChevronRightIcon from 'theme/components/Icons/InlineChevronRightIco
 import NavigatorLeafIcon from 'docc-render/components/Navigator/NavigatorLeafIcon.vue';
 import HighlightMatches from 'docc-render/components/Navigator/HighlightMatches.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
-import { TopicKind } from 'docc-render/constants/kinds';
+import { TopicTypes } from 'docc-render/constants/TopicTypes';
 
 export default {
   name: 'NavigatorCardItem',
@@ -82,7 +82,7 @@ export default {
     },
   },
   computed: {
-    isGroupMarker: ({ item: { kind } }) => kind === TopicKind.groupMarker,
+    isGroupMarker: ({ item: { type } }) => type === TopicTypes.groupMarker,
   },
   methods: {
     toggleTree() {
@@ -102,7 +102,6 @@ export default {
   height: 32px;
   display: flex;
   align-items: center;
-  padding-right: var(--card-horizontal-spacing);
 }
 
 .head-wrapper {
@@ -123,13 +122,9 @@ export default {
       color: var(--color-figure-gray-secondary);
       font-weight: $font-weight-semibold;
     }
-
-    &:hover {
-      background: inherit;
-    }
   }
 
-  .hover & {
+  .hover &:not(.is-group) {
     background: var(--color-navigator-item-hover);
   }
 
@@ -173,7 +168,7 @@ export default {
 }
 
 .tree-toggle {
-  $size: 15px;
+  $size: 20px;
   $margin: 5px;
   position: relative;
   z-index: 1;

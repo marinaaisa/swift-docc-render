@@ -15,7 +15,7 @@
         <InlineCloseIcon class="icon-inline close-icon" />
       </button>
       <Reference :url="technologyPath" class="navigator-head">
-        <NavigatorLeafIcon :kind="kind" with-colors class="card-icon" />
+        <NavigatorLeafIcon :type="type" with-colors class="card-icon" />
         <div class="card-link">
           {{ technology }}
         </div>
@@ -86,7 +86,7 @@ import InlineCloseIcon from 'theme/components/Icons/InlineCloseIcon.vue';
 import FilterIcon from 'theme/components/Icons/FilterIcon.vue';
 import ClearRoundedIcon from 'theme/components/Icons/ClearRoundedIcon.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
-import { TopicKind } from 'docc-render/constants/kinds';
+import { TopicTypes } from 'docc-render/constants/TopicTypes';
 
 export const STORAGE_KEYS = {
   filter: 'navigator.filter',
@@ -124,7 +124,7 @@ export default {
       type: Array,
       required: true,
     },
-    kind: {
+    type: {
       type: String,
       required: true,
     },
@@ -203,7 +203,7 @@ export default {
       // match each child's title, against the `filterPattern`
       return children.filter(({ title, kind }) => (
         // make sure groupMarker's dont match
-        filterPattern.test(title) && kind !== TopicKind.groupMarker
+        filterPattern.test(title) && kind !== TopicTypes.groupMarker
       ));
     },
     /**
@@ -467,7 +467,7 @@ export default {
 @import '~vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 $navigator-card-horizontal-spacing: 20px !default;
-$navigator-card-vertical-spacing: 18px !default;
+$navigator-card-vertical-spacing: 8px !default;
 
 .navigator-card {
   overflow: hidden auto;
@@ -621,5 +621,6 @@ $navigator-card-vertical-spacing: 18px !default;
   height: 100%;
   box-sizing: border-box;
   padding: var(--card-vertical-spacing) 0;
+  padding-right: var(--card-horizontal-spacing);
 }
 </style>
