@@ -20,8 +20,16 @@
     :role="isParent ? 'group': 'treeitem'"
   >
     <div class="head-wrapper" :class="{ active: isActive, 'is-group': isGroupMarker }">
+      <span
+        v-if="isParent"
+        hidden
+        :id="buttonParentLabel"
+      >
+        {{ item.siblingsCount }} symbols to be {{ expanded ? 'collapsed' : 'expanded'}}
+      </span>
       <button
         v-if="isParent"
+        :aria-describedby="buttonParentLabel"
         class="tree-toggle"
         :tabindex="isRendered ? null : '-1'"
         :aria-label="`Toggle ${item.title}`"
@@ -110,6 +118,7 @@ export default {
     isParent: ({ item }) => !!item.childUIDs.length,
     parentLabel: ({ item }) => `label-parent-${item.uid}`,
     siblingsLabel: ({ item }) => `label-${item.uid}`,
+    buttonParentLabel: ({ item }) => `button-parent-${item.uid}`,
     ariaDescribedBy({
       item, siblingsLabel, parentLabel, isParent,
     }) {
