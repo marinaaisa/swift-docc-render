@@ -22,7 +22,7 @@
         hidden
         :id="buttonParentLabel"
       >
-        {{ item.siblingsCount }} symbols to be {{ expanded ? 'collapsed' : 'expanded'}}
+        {{ item.childUIDs.length }} symbols to be {{ expanded ? 'collapsed' : 'expanded'}}
       </span>
       <button
         v-if="isParent"
