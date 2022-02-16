@@ -17,7 +17,6 @@
     :id="`container-${item.uid}`"
     :aria-owns="ariaOwns"
     :aria-level="item.depth"
-    :role="isParent ? 'group': 'treeitem'"
   >
     <div class="head-wrapper" :class="{ active: isActive, 'is-group': isGroupMarker }">
       <span
