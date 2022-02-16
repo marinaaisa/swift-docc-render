@@ -52,7 +52,7 @@
           :class="{ bolded: isBold }"
           class="leaf-link"
           :aria-describedby="ariaDescribedBy"
-          :tabindex="active ? null : '-1'"
+          :tabindex="isRendered ? null : '-1'"
         >
           <HighlightMatches
             :text="item.title"
