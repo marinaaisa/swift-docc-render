@@ -26,7 +26,6 @@
         v-show="nodesToRender.length"
         ref="scroller"
         class="scroller"
-        role="tree"
         aria-label="Sidebar Tree Navigator"
         :items="nodesToRender"
         :item-size="itemSize"

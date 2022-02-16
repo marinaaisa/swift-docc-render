@@ -15,13 +15,18 @@
     :style="{ '--nesting-index': item.depth }"
     :aria-hidden="isRendered ? null : 'true'"
     :id="`container-${item.uid}`"
-    :aria-owns="ariaOwns"
-    :aria-level="item.depth"
-    :role="isParent ? 'group': 'treeitem'"
   >
     <div class="head-wrapper" :class="{ active: isActive, 'is-group': isGroupMarker }">
+      <span
+        v-if="isParent"
+        hidden
+        :id="buttonParentLabel"
+      >
+        {{ item.childUIDs.length }} symbols to be {{ expanded ? 'collapsed' : 'expanded'}}
+      </span>
       <button
         v-if="isParent"
+        :aria-describedby="buttonParentLabel"
         class="tree-toggle"
         :tabindex="isRendered ? null : '-1'"
         :aria-label="`Toggle ${item.title}`"
@@ -110,16 +115,13 @@ export default {
     isParent: ({ item }) => !!item.childUIDs.length,
     parentLabel: ({ item }) => `label-parent-${item.uid}`,
     siblingsLabel: ({ item }) => `label-${item.uid}`,
+    buttonParentLabel: ({ item }) => `button-parent-${item.uid}`,
     ariaDescribedBy({
       item, siblingsLabel, parentLabel, isParent,
     }) {
       const baseLabel = `${siblingsLabel} ${item.parent}`;
       if (!isParent) return baseLabel;
       return `${baseLabel} ${parentLabel}`;
-    },
-    ariaOwns({ item, isParent }) {
-      if (!isParent) return null;
-      return item.childUIDs.map(uid => `container-${uid}`).join(' ');
     },
   },
   methods: {
