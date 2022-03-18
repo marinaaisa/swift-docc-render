@@ -55,6 +55,7 @@
               :expanded="openNodes[item.uid]"
               :api-change="apiChangesObject[item.path]"
               :isFocused="focusedIndex === index"
+              :lastFocusWasInside="isInsideScroller(lastFocusTarget)"
               @toggle="toggle"
               @toggle-full="toggleFullTree"
               @navigate="setActiveUID"
