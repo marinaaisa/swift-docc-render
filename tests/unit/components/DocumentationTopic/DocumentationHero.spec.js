@@ -19,6 +19,7 @@ const defaultProps = {
   role: TopicTypes.class,
   enhanceBackground: true,
   shortHero: true,
+  shouldShowLanguageSwitcher: false,
 };
 
 const createWrapper = ({ propsData, ...others } = {}) => shallowMount(DocumentationHero, {
