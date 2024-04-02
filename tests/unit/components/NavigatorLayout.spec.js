@@ -21,7 +21,7 @@ import Navigator from '@/components/Navigator.vue';
 import { storage } from '@/utils/storage';
 import { BreakpointName } from 'docc-render/utils/breakpoints';
 import StaticContentWidth from 'docc-render/components/DocumentationTopic/StaticContentWidth.vue';
-import BaseNavigatorView from 'docc-render/views/BaseNavigatorView.vue';
+import NavigatorLayout from 'docc-render/components/NavigatorLayout.vue';
 import { getSetting } from 'docc-render/utils/theme-settings';
 import { flushPromises } from '../../../test-utils';
 
@@ -50,8 +50,8 @@ const {
   CodeTheme,
   Nav,
   QuickNavigationModal,
-} = BaseNavigatorView.components;
-const { NAVIGATOR_HIDDEN_ON_LARGE_KEY } = BaseNavigatorView.constants;
+} = NavigatorLayout.components;
+const { NAVIGATOR_HIDDEN_ON_LARGE_KEY } = NavigatorLayout.constants;
 
 const TechnologiesRootIdentifier = 'topic://technologies';
 
@@ -105,12 +105,12 @@ const AdjustableSidebarWidthSmallStub = {
 const stubs = {
   AdjustableSidebarWidth,
   NavigatorDataProvider,
-  BaseNavigatorView,
+  NavigatorLayout,
 };
 
 const provide = { isTargetIDE: false };
 
-const createWrapper = props => shallowMount(BaseNavigatorView, {
+const createWrapper = props => shallowMount(NavigatorLayout, {
   propsData,
   stubs,
   provide,
@@ -118,7 +118,7 @@ const createWrapper = props => shallowMount(BaseNavigatorView, {
   ...props,
 });
 
-describe('BaseNavigatorView', () => {
+describe('NavigatorLayout', () => {
   /** @type {import('@vue/test-utils').Wrapper} */
   let wrapper;
 

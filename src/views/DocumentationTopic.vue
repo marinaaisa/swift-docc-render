@@ -9,11 +9,28 @@
 -->
 
 <template>
-  <BaseNavigatorView
-    v-if="topicData"
-    v-bind="baseViewProps"
+<CodeTheme v-if="topicData" class="doc-topic-view">
+  <Nav
+    v-if="!isTargetIDE"
+    :diffAvailability="topicProps.diffAvailability"
+    :interfaceLanguage="topicProps.interfaceLanguage"
+    :objcPath="topicProps.objcPath"
+    :swiftPath="topicProps.swiftPath"
+    :displaySidenav="enableNavigator"
+    @toggle-sidenav="handleToggleSidenav"
   >
-    <template #default>
+    <template #title>
+      <component
+        :is="rootLink ? 'router-link' : 'span'"
+        :to="rootLink"
+        class="nav-title-link"
+      >
+        {{ $t('documentation.title') }}
+      </component>
+    </template>
+  </Nav>
+  <NavigatorLayout v-bind="navigatorProps">
+    <template #content>
       <Topic
         v-bind="topicProps"
         :key="topicKey"
@@ -36,7 +53,8 @@
         {{ $t('documentation.title') }}
       </component>
     </template>
-  </BaseNavigatorView>
+  </NavigatorLayout>
+</CodeTheme>
 </template>
 
 <script>
@@ -49,13 +67,16 @@ import {
   shouldFetchDataForRouteUpdate,
 } from 'docc-render/utils/data';
 import DocumentationTopic from 'theme/components/DocumentationTopic.vue';
-import BaseNavigatorView from 'docc-render/views/BaseNavigatorView.vue';
+import NavigatorLayout from 'docc-render/components/NavigatorLayout.vue';
 import DocumentationTopicStore from 'docc-render/stores/DocumentationTopicStore';
 import Language from 'docc-render/constants/Language';
 import OnThisPageRegistrator from 'docc-render/mixins/onThisPageRegistrator';
 import { updateLocale } from 'theme/utils/i18n-utils';
+import DocumentationNav from 'theme/components/DocumentationTopic/DocumentationNav.vue';
 import { compareVersions, combineVersions } from 'docc-render/utils/schema-version-check';
 import communicationBridgeUtils from 'docc-render/mixins/communicationBridgeUtils';
+import CodeTheme from 'docc-render/components/Tutorial/CodeTheme.vue';
+import CodeThemeStore from 'docc-render/stores/CodeThemeStore';
 
 const { extractProps } = DocumentationTopic.methods;
 
@@ -66,7 +87,9 @@ export default {
   constants: { MIN_RENDER_JSON_VERSION_WITH_INDEX },
   components: {
     Topic: DocumentationTopic,
-    BaseNavigatorView,
+    Nav: DocumentationNav,
+    NavigatorLayout,
+    CodeTheme,
   },
   mixins: [OnThisPageRegistrator, communicationBridgeUtils],
   props: {
@@ -83,26 +106,18 @@ export default {
     };
   },
   computed: {
-    baseViewProps: ({
+    navigatorProps: ({
       topicProps: {
-        diffAvailability,
-        interfaceLanguage,
         references,
       },
       enableNavigator,
       technology,
       parentTopicIdentifiers,
-      objcPath,
-      swiftPath,
     }) => ({
-      diffAvailability,
-      interfaceLanguage,
       references,
       enableNavigator,
       technology,
       parentTopicIdentifiers,
-      objcPath,
-      swiftPath,
     }),
     objcOverrides: ({ topicData }) => {
       const { variantOverrides = [] } = topicData || {};
@@ -244,15 +259,21 @@ export default {
       } : null),
   },
   methods: {
+    handleCodeColorsChange(codeColors) {
+      CodeThemeStore.updateCodeColors(codeColors);
+    },
     applyObjcOverrides() {
       this.topicDataObjc = apply(clone(this.topicData), this.objcOverrides);
     },
   },
   mounted() {
     this.$bridge.on('contentUpdate', this.handleContentUpdateFromBridge);
+    this.$bridge.on('codeColors', this.handleCodeColorsChange);
+    this.$bridge.send({ type: 'requestCodeColors' });
   },
   beforeDestroy() {
     this.$bridge.off('contentUpdate', this.handleContentUpdateFromBridge);
+    this.$bridge.off('codeColors', this.handleCodeColorsChange);
   },
   beforeRouteEnter(to, from, next) {
     // skip fetching, and rely on data being provided via $bridge

@@ -9,45 +9,71 @@
 -->
 
 <template>
-  <nav
-    :aria-labelledby="INDEX_ROOT_KEY"
-    class="navigator"
+  <NavigatorDataProvider
+    :interface-language="interfaceLanguage"
+    :technologyUrl="technology ? technology.url : null"
+    :api-changes-version="store.state.selectedAPIChangesVersion"
+    ref="NavigatorDataProvider"
   >
-    <NavigatorCard
-      v-if="!isFetching"
-      v-bind="technologyProps"
-      :type="type"
-      :children="flatChildren"
-      :active-path="activePath"
-      :scrollLockID="scrollLockID"
-      :error-fetching="errorFetching"
-      :render-filter-on-top="renderFilterOnTop"
-      :api-changes="apiChanges"
-      :navigator-references="navigatorReferences"
-      @close="$emit('close')"
-    >
-      <template #filter><slot name="filter" /></template>
-      <template #navigator-head>
-        <slot name="navigator-head"/>
-      </template>
-    </NavigatorCard>
-    <LoadingNavigatorCard
-      @close="$emit('close')"
-      v-else
-    />
-    <div aria-live="polite" class="visuallyhidden">
-      {{ $t('navigator.navigator-is', {
-        state: isFetching ? $t('navigator.state.loading') : $t('navigator.state.ready')
-      }) }}
-    </div>
-  </nav>
+    <template #default="slotProps">
+      <div class="doc-topic-aside">
+        <QuickNavigationModal
+          v-if="enableQuickNavigation"
+          :children="slotProps.flatChildren"
+          :showQuickNavigationModal.sync="showQuickNavigationModal"
+          :technology="technology ? technology.title : null"
+        />
+        <transition name="delay-hiding">
+          <nav
+            :aria-labelledby="INDEX_ROOT_KEY"
+            class="navigator"
+          >
+            <NavigatorCard
+              v-if="!slotProps.isFetching"
+              v-bind="technologyProps(slotProps.technology || technology)"
+              :children="slotProps.flatChildren"
+              :error-fetching="slotProps.errorFetching"
+              :api-changes="slotProps.apiChanges"
+              :navigator-references="slotProps.references"
+              :type="type"
+              :active-path="activePath"
+              :scrollLockID="scrollLockID"
+              :render-filter-on-top="renderFilterOnTop"
+              @close="$emit('close')"
+            >
+              <template v-if="enableQuickNavigation" #filter>
+                <QuickNavigationButton @click.native="openQuickNavigationModal" />
+              </template>
+              <template #navigator-head>
+                <slot name="title" />
+              </template>
+            </NavigatorCard>
+            <LoadingNavigatorCard
+              @close="$emit('close')"
+              v-else
+            />
+            <div aria-live="polite" class="visuallyhidden">
+              {{ $t('navigator.navigator-is', {
+                state: slotProps.isFetching
+                  ? $t('navigator.state.loading') : $t('navigator.state.ready')
+              }) }}
+            </div>
+          </nav>
+        </transition>
+      </div>
+    </template>
+  </NavigatorDataProvider>
 </template>
 
 <script>
 import NavigatorCard from 'theme/components/Navigator/NavigatorCard.vue';
 import LoadingNavigatorCard from 'theme/components/Navigator/LoadingNavigatorCard.vue';
+import NavigatorDataProvider from 'theme/components/Navigator/NavigatorDataProvider.vue';
+import { getSetting } from 'docc-render/utils/theme-settings';
 import { INDEX_ROOT_KEY } from 'docc-render/constants/sidebar';
 import { TopicTypes } from 'docc-render/constants/TopicTypes';
+import QuickNavigationModal from 'docc-render/components/Navigator/QuickNavigationModal.vue';
+import QuickNavigationButton from 'docc-render/components/Navigator/QuickNavigationButton.vue';
 
 /**
  * @typedef NavigatorFlatItem
@@ -76,6 +102,18 @@ export default {
   components: {
     NavigatorCard,
     LoadingNavigatorCard,
+    NavigatorDataProvider,
+    QuickNavigationModal,
+    QuickNavigationButton,
+  },
+  inject: {
+    store: {
+      default() {
+        return {
+          state: {},
+        };
+      },
+    },
   },
   data() {
     return {
@@ -83,10 +121,6 @@ export default {
     };
   },
   props: {
-    flatChildren: {
-      type: Array,
-      required: true,
-    },
     parentTopicIdentifiers: {
       type: Array,
       required: true,
@@ -95,25 +129,13 @@ export default {
       type: Object,
       required: false,
     },
-    isFetching: {
-      type: Boolean,
-      default: false,
-    },
     references: {
-      type: Object,
-      default: () => {},
-    },
-    navigatorReferences: {
       type: Object,
       default: () => {},
     },
     scrollLockID: {
       type: String,
       default: '',
-    },
-    errorFetching: {
-      type: Boolean,
-      default: false,
     },
     renderFilterOnTop: {
       type: Boolean,
@@ -125,6 +147,9 @@ export default {
     },
   },
   computed: {
+    enableQuickNavigation: ({ isTargetIDE }) => (
+      !isTargetIDE && getSetting(['features', 'docs', 'quickNavigation', 'enable'], true)
+    ),
     // gets the paths for each parent in the breadcrumbs
     parentTopicReferences({ references, parentTopicIdentifiers }) {
       return parentTopicIdentifiers
@@ -153,13 +178,31 @@ export default {
      * The root item is always a module
      */
     type: () => TopicTypes.module,
-    technologyProps: ({ technology }) => (
-      !technology ? null : {
+  },
+  methods: {
+    technologyProps(technology) {
+      return !technology ? null : {
         technology: technology.title,
         technologyPath: technology.path || technology.url,
         isTechnologyBeta: technology.beta,
-      }
-    ),
+      };
+    },
+    onQuickNavigationKeydown(event) {
+      // Open the modal only on `/` or `cmd+shift+o` key event
+      if (event.key !== '/' && !(event.key === 'o' && event.shiftKey && event.metaKey)) return;
+      // Prevent modal from opening when the navigator is disabled
+      if (!this.enableNavigator) return;
+      // Prevent modal from opening if the event source element is an input
+      if (event.target.tagName.toLowerCase() === 'input') return;
+      this.openQuickNavigationModal();
+      event.preventDefault();
+    },
+  },
+  mounted() {
+    if (this.enableQuickNavigation) window.addEventListener('keydown', this.onQuickNavigationKeydown);
+  },
+  beforeDestroy() {
+    if (this.enableQuickNavigation) window.removeEventListener('keydown', this.onQuickNavigationKeydown);
   },
 };
 </script>
