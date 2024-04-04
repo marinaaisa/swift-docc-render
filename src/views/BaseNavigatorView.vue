@@ -24,8 +24,7 @@
           <slot name="title" />
         </template>
       </Nav>
-      <component
-        :is="enableNavigator ? 'AdjustableSidebarWidth' : 'StaticContentWidth'"
+      <ContentLayout
         v-bind="sidebarProps"
         v-on="sidebarListeners"
         class="full-width-container topic-wrapper"
@@ -73,8 +72,8 @@
             </template>
           </NavigatorDataProvider>
         </template>
-        <slot/>
-      </component>
+        <slot />
+      </ContentLayout>
     </template>
   </CodeTheme>
 </template>
@@ -85,9 +84,8 @@ import CodeTheme from 'docc-render/components/Tutorial/CodeTheme.vue';
 import CodeThemeStore from 'docc-render/stores/CodeThemeStore';
 import QuickNavigationButton from 'docc-render/components/Navigator/QuickNavigationButton.vue';
 import QuickNavigationModal from 'docc-render/components/Navigator/QuickNavigationModal.vue';
-import AdjustableSidebarWidth from 'docc-render/components/AdjustableSidebarWidth.vue';
+import ContentLayout from 'docc-render/components/ContentLayout.vue';
 import Navigator from 'docc-render/components/Navigator.vue';
-import StaticContentWidth from 'docc-render/components/DocumentationTopic/StaticContentWidth.vue';
 import DocumentationTopicStore from 'docc-render/stores/DocumentationTopicStore';
 import onPageLoadScrollToFragment from 'docc-render/mixins/onPageLoadScrollToFragment';
 import { BreakpointName } from 'docc-render/utils/breakpoints';
@@ -100,12 +98,11 @@ import DocumentationNav from 'theme/components/DocumentationTopic/DocumentationN
 const NAVIGATOR_HIDDEN_ON_LARGE_KEY = 'navigator-hidden-large';
 
 export default {
-  name: 'BaseNavigatorView',
+  name: 'NavigatorSidebar',
   constants: { NAVIGATOR_HIDDEN_ON_LARGE_KEY },
   components: {
     Navigator,
-    AdjustableSidebarWidth,
-    StaticContentWidth,
+    ContentLayout,
     NavigatorDataProvider,
     CodeTheme,
     Nav: DocumentationNav,
@@ -169,7 +166,9 @@ export default {
           shownOnMobile: sidenavVisibleOnMobile,
           hiddenOnLarge: sidenavHiddenOnLarge,
         }
-        : {}
+        : {
+          enableSidebar: enableNavigator,
+        }
     ),
     sidebarListeners() {
       return this.enableNavigator ? ({
