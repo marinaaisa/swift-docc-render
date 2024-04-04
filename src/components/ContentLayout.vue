@@ -1,7 +1,7 @@
 <!--
   This source file is part of the Swift.org open source project
 
-  Copyright (c) 2022 Apple Inc. and the Swift project authors
+  Copyright (c) 2022-2024 Apple Inc. and the Swift project authors
   Licensed under Apache License v2.0 with Runtime Library Exception
 
   See https://swift.org/LICENSE.txt for license information
@@ -10,13 +10,14 @@
 
 <template>
   <div
-    class="adjustable-sidebar-width"
+    class="content-layout"
     :class="{
       dragging: isDragging,
-      'sidebar-hidden': hiddenOnLarge
+      'sidebar-hidden': !enableSidebar || hiddenOnLarge
     }"
   >
     <div
+      v-if="enableSidebar"
       ref="sidebar"
       class="sidebar"
     >
@@ -98,7 +99,7 @@ export const maxWidthResponsivePercents = {
 const SCROLL_LOCK_ID = 'sidebar-scroll-lock';
 
 export default {
-  name: 'AdjustableSidebarWidth',
+  name: 'ContentLayout',
   constants: {
     SCROLL_LOCK_ID,
   },
@@ -110,6 +111,10 @@ export default {
     shownOnMobile: {
       type: Boolean,
       default: false,
+    },
+    enableSidebar: {
+      type: Boolean,
+      default: true,
     },
     hiddenOnLarge: {
       type: Boolean,
@@ -385,7 +390,7 @@ export default {
   }
 }
 
-.adjustable-sidebar-width {
+.content-layout {
   display: flex;
   @include breakpoint(medium, nav) {
     display: block;
