@@ -8,13 +8,13 @@
  * See https://swift.org/CONTRIBUTORS.txt for Swift project authors
 */
 
-import AdjustableSidebarWidth, {
+import ContentLayout, {
   eventsMap,
   STORAGE_KEY,
   MAX_WIDTH,
   ULTRA_WIDE_DEFAULT,
   LARGE_DEFAULT_WIDTH,
-} from '@/components/AdjustableSidebarWidth.vue';
+} from '@/components/ContentLayout.vue';
 
 import store from '@/stores/DocumentationTopicStore';
 import { shallowMount } from '@vue/test-utils';
@@ -39,7 +39,7 @@ jest.mock('docc-render/utils/throttle', () => jest.fn(v => v));
 
 storage.get.mockImplementation((key, value) => value);
 
-const { SCROLL_LOCK_ID } = AdjustableSidebarWidth.constants;
+const { SCROLL_LOCK_ID } = ContentLayout.constants;
 
 const scrollLockTarget = document.createElement('DIV');
 scrollLockTarget.id = SCROLL_LOCK_ID;
@@ -55,7 +55,7 @@ document.body.appendChild(navStickyElement);
 const maxWidth = 500; // 50% of the innerWidth, as per the default maxWidth on large
 let slotProps = {};
 
-const createWrapper = opts => shallowMount(AdjustableSidebarWidth, {
+const createWrapper = opts => shallowMount(ContentLayout, {
   slots: {
     default: '<div class="default-content">Default Content</div>',
   },
@@ -78,13 +78,13 @@ function assertWidth(wrapper, value) {
 
 Object.defineProperty(HTMLElement.prototype, 'offsetLeft', { configurable: true, value: 100 });
 
-describe('AdjustableSidebarWidth', () => {
+describe('ContentLayout', () => {
   beforeEach(() => {
     window.innerWidth = 1000; // 1000 for easy math
     store.state.contentWidth = 0;
     jest.clearAllMocks();
   });
-  it('renders the AdjustableSidebarWidth', () => {
+  it('renders the ContentLayout', () => {
     const wrapper = createWrapper();
     // sidebar
     expect(wrapper.find('.sidebar').exists()).toBe(true);
@@ -265,7 +265,7 @@ describe('AdjustableSidebarWidth', () => {
 
     it('allows closing the sidebar, when `$route` changes', () => {
       // cannot mock the entire $route, and trigger watchers
-      expect(AdjustableSidebarWidth.watch.$route).toEqual('closeMobileSidebar');
+      expect(ContentLayout.watch.$route).toEqual('closeMobileSidebar');
     });
 
     it('closes the nav, on breakpoint change from medium to large', async () => {

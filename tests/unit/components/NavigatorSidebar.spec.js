@@ -14,14 +14,13 @@ import DocumentationTopicStore from 'docc-render/stores/DocumentationTopicStore'
 import onPageLoadScrollToFragment from 'docc-render/mixins/onPageLoadScrollToFragment';
 import DocumentationNav from 'docc-render/components/DocumentationTopic/DocumentationNav.vue';
 import NavBase from 'docc-render/components/NavBase.vue';
-import AdjustableSidebarWidth from '@/components/AdjustableSidebarWidth.vue';
+import ContentLayout from '@/components/ContentLayout.vue';
 import NavigatorDataProvider from '@/components/Navigator/NavigatorDataProvider.vue';
 import Language from '@/constants/Language';
 import Navigator from '@/components/Navigator.vue';
 import { storage } from '@/utils/storage';
 import { BreakpointName } from 'docc-render/utils/breakpoints';
-import StaticContentWidth from 'docc-render/components/DocumentationTopic/StaticContentWidth.vue';
-import BaseNavigatorView from 'docc-render/views/BaseNavigatorView.vue';
+import NavigatorSidebar from 'docc-render/components/NavigatorSidebar.vue';
 import { getSetting } from 'docc-render/utils/theme-settings';
 import { flushPromises } from '../../../test-utils';
 
@@ -50,8 +49,8 @@ const {
   CodeTheme,
   Nav,
   QuickNavigationModal,
-} = BaseNavigatorView.components;
-const { NAVIGATOR_HIDDEN_ON_LARGE_KEY } = BaseNavigatorView.constants;
+} = NavigatorSidebar.components;
+const { NAVIGATOR_HIDDEN_ON_LARGE_KEY } = NavigatorSidebar.constants;
 
 const TechnologiesRootIdentifier = 'topic://technologies';
 
@@ -93,24 +92,24 @@ const propsData = {
   swiftPath: 'documentation/swift',
 };
 
-const AdjustableSidebarWidthSmallStub = {
+const ContentLayoutSmallStub = {
   render() {
     return this.$scopedSlots.aside({
-      scrollLockID: AdjustableSidebarWidth.constants.SCROLL_LOCK_ID,
+      scrollLockID: ContentLayout.constants.SCROLL_LOCK_ID,
       breakpoint: BreakpointName.small,
     });
   },
 };
 
 const stubs = {
-  AdjustableSidebarWidth,
+  ContentLayout,
   NavigatorDataProvider,
-  BaseNavigatorView,
+  NavigatorSidebar,
 };
 
 const provide = { isTargetIDE: false };
 
-const createWrapper = props => shallowMount(BaseNavigatorView, {
+const createWrapper = props => shallowMount(NavigatorSidebar, {
   propsData,
   stubs,
   provide,
@@ -118,7 +117,7 @@ const createWrapper = props => shallowMount(BaseNavigatorView, {
   ...props,
 });
 
-describe('BaseNavigatorView', () => {
+describe('NavigatorSidebar', () => {
   /** @type {import('@vue/test-utils').Wrapper} */
   let wrapper;
 
@@ -145,17 +144,18 @@ describe('BaseNavigatorView', () => {
     expect(codeTheme.exists()).toBe(true);
   });
 
-  it('renders the Navigator and AdjustableSidebarWidth when enabled', async () => {
+  it('renders the Navigator and ContentLayout when enabled', async () => {
     wrapper.setProps({
       enableNavigator: true,
     });
 
-    const adjustableWidth = wrapper.find(AdjustableSidebarWidth);
+    const adjustableWidth = wrapper.find(ContentLayout);
     expect(adjustableWidth.classes())
       .toEqual(expect.arrayContaining(['full-width-container', 'topic-wrapper']));
     expect(adjustableWidth.props()).toEqual({
       shownOnMobile: false,
       hiddenOnLarge: false,
+      enableSidebar: true,
       fixedWidth: null,
     });
     const {
@@ -176,7 +176,7 @@ describe('BaseNavigatorView', () => {
       // assert we are passing the first set of paths always
       parentTopicIdentifiers,
       references,
-      scrollLockID: AdjustableSidebarWidth.constants.SCROLL_LOCK_ID,
+      scrollLockID: ContentLayout.constants.SCROLL_LOCK_ID,
       // assert we are passing the default technology, if we dont have the children yet
       technology,
       apiChanges: null,
@@ -189,7 +189,7 @@ describe('BaseNavigatorView', () => {
     expect(navigator.props()).toEqual({
       errorFetching: false,
       isFetching: false,
-      scrollLockID: AdjustableSidebarWidth.constants.SCROLL_LOCK_ID,
+      scrollLockID: ContentLayout.constants.SCROLL_LOCK_ID,
       renderFilterOnTop: false,
       parentTopicIdentifiers,
       references,
@@ -275,7 +275,7 @@ describe('BaseNavigatorView', () => {
     beforeEach(() => {
       wrapper = createWrapper({
         stubs: {
-          AdjustableSidebarWidth: AdjustableSidebarWidthSmallStub,
+          ContentLayout: ContentLayoutSmallStub,
           NavigatorDataProvider,
         },
       });
@@ -407,12 +407,12 @@ describe('BaseNavigatorView', () => {
     });
 
     // assert the sidebar
-    expect(wrapper.find(AdjustableSidebarWidth).exists()).toBe(false);
-    const staticContentWidth = wrapper.find(StaticContentWidth);
-    expect(staticContentWidth.exists()).toBe(true);
+    const contentLayout = wrapper.find(ContentLayout);
+    expect(contentLayout.exists()).toBe(true);
+    expect(wrapper.find('.sidebar').exists()).toBe(false);
     expect(wrapper.find(Navigator).exists()).toBe(false);
     // assert the proper container class is applied
-    expect(staticContentWidth.classes())
+    expect(contentLayout.classes())
       .toEqual(expect.arrayContaining(['topic-wrapper', 'full-width-container']));
   });
 
@@ -429,7 +429,7 @@ describe('BaseNavigatorView', () => {
     const nav = wrapper.find(Nav);
     // toggle the navigator from the Nav component, in Small breakpoint
     nav.vm.$emit('toggle-sidenav', BreakpointName.small);
-    const sidebar = wrapper.find(AdjustableSidebarWidth);
+    const sidebar = wrapper.find(ContentLayout);
     // set the breakpoint to small on the sidebar
     sidebar.vm.breakpoint = BreakpointName.small;
     expect(sidebar.props('shownOnMobile')).toBe(true);
@@ -452,7 +452,7 @@ describe('BaseNavigatorView', () => {
       enableNavigator: true,
     });
     await flushPromises();
-    const sidebar = wrapper.find(AdjustableSidebarWidth);
+    const sidebar = wrapper.find(ContentLayout);
     const nav = wrapper.find(Nav);
     // close the navigator
     wrapper.find(Navigator).vm.$emit('close');
@@ -467,7 +467,7 @@ describe('BaseNavigatorView', () => {
 
   it('handles `@toggle-sidenav` on Nav, for `Large` breakpoint', async () => {
     // assert that the storage was called to get the navigator closed state from LS
-    expect(storage.get).toHaveBeenCalledTimes(1);
+    expect(storage.get).toHaveBeenCalledTimes(1); // FIXME
     expect(storage.get).toHaveBeenCalledWith(NAVIGATOR_HIDDEN_ON_LARGE_KEY, false);
 
     wrapper.setProps({
@@ -475,7 +475,7 @@ describe('BaseNavigatorView', () => {
     });
     await flushPromises();
     const nav = wrapper.find(Nav);
-    const sidebar = wrapper.find(AdjustableSidebarWidth);
+    const sidebar = wrapper.find(ContentLayout);
     // assert the hidden prop is false
     expect(sidebar.props('hiddenOnLarge')).toBe(false);
     // Now close from the sidebar
@@ -497,9 +497,10 @@ describe('BaseNavigatorView', () => {
       expect(wrapper.contains(Nav)).toBe(false);
     });
 
-    it('does not render an AdjustableSidebarWidth', () => {
+    it('does not render a sidebar', () => {
       wrapper = createWrapper({ provide: provideWithIDETarget });
-      expect(wrapper.find(AdjustableSidebarWidth).exists()).toBe(false);
+      expect(wrapper.find('.sidebar').exists()).toBe(false);
+      expect(wrapper.find(Navigator).exists()).toBe(false);
     });
   });
 });
