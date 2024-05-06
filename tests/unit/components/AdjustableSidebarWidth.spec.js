@@ -11,7 +11,6 @@
 import AdjustableSidebarWidth, {
   eventsMap,
   STORAGE_KEY,
-  MAX_WIDTH,
   ULTRA_WIDE_DEFAULT,
   LARGE_DEFAULT_WIDTH,
 } from '@/components/AdjustableSidebarWidth.vue';
@@ -40,6 +39,8 @@ jest.mock('docc-render/utils/throttle', () => jest.fn(v => v));
 storage.get.mockImplementation((key, value) => value);
 
 const { SCROLL_LOCK_ID } = AdjustableSidebarWidth.constants;
+
+const MAX_WIDTH = AdjustableSidebarWidth.props.hardMaxWidth.default;
 
 const scrollLockTarget = document.createElement('DIV');
 scrollLockTarget.id = SCROLL_LOCK_ID;

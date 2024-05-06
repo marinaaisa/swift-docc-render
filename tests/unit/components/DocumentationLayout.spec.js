@@ -158,6 +158,7 @@ describe('DocumentationLayout', () => {
       hiddenOnLarge: false,
       enableNavigator: true,
       fixedWidth: null,
+      hardMaxWidth: 1921,
     });
     const {
       technology,

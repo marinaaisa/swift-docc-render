@@ -69,8 +69,6 @@ import { baseNavStickyAnchorId } from 'docc-render/constants/nav';
 
 export const STORAGE_KEY = 'sidebar';
 
-// the maximum width, after which the full-width content does not grow
-export const MAX_WIDTH = 1921;
 export const ULTRA_WIDE_DEFAULT = 543;
 export const LARGE_DEFAULT_WIDTH = 400;
 
@@ -83,11 +81,6 @@ export const eventsMap = {
     move: 'mousemove',
     end: 'mouseup',
   },
-};
-
-const calcWidthPercent = (percent, windowWidth = window.innerWidth) => {
-  const maxWidth = Math.min(windowWidth, MAX_WIDTH);
-  return Math.floor(Math.min(maxWidth * (percent / 100), maxWidth));
 };
 
 export const minWidthResponsivePercents = {
@@ -128,17 +121,22 @@ export default {
       type: Number,
       default: null,
     },
+    // the maximum width, after which the full-width content does not grow
+    hardMaxWidth: {
+      type: Number,
+      default: 1921,
+    },
   },
   data() {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
     const breakpoint = BreakpointName.large;
     // get the min width, in case we dont have a previously saved value
-    const minWidth = calcWidthPercent(minWidthResponsivePercents[breakpoint]);
+    const minWidth = this.calcWidthPercent(minWidthResponsivePercents[breakpoint]);
     // calc the maximum width
-    const maxWidth = calcWidthPercent(maxWidthResponsivePercents[breakpoint]);
+    const maxWidth = this.calcWidthPercent(maxWidthResponsivePercents[breakpoint]);
     // have a default width for very large screens, or use half of the min and max
-    const defaultWidth = windowWidth >= MAX_WIDTH
+    const defaultWidth = windowWidth >= this.hardMaxWidth
       ? ULTRA_WIDE_DEFAULT
       : LARGE_DEFAULT_WIDTH;
     // get the already stored data, fallback to a default one.
@@ -162,10 +160,14 @@ export default {
   computed: {
     minWidthPercent: ({ breakpoint }) => minWidthResponsivePercents[breakpoint] || 0,
     maxWidthPercent: ({ breakpoint }) => maxWidthResponsivePercents[breakpoint] || 100,
-    maxWidth: ({ maxWidthPercent, windowWidth, fixedWidth }) => (
+    maxWidth: ({
+      maxWidthPercent, windowWidth, fixedWidth, calcWidthPercent,
+    }) => (
       Math.max(fixedWidth, calcWidthPercent(maxWidthPercent, windowWidth))
     ),
-    minWidth: ({ minWidthPercent, windowWidth, fixedWidth }) => (
+    minWidth: ({
+      minWidthPercent, windowWidth, fixedWidth, calcWidthPercent,
+    }) => (
       Math.min(fixedWidth || windowWidth, calcWidthPercent(minWidthPercent, windowWidth))
     ),
     widthInPx: ({ width }) => `${width}px`,
@@ -259,6 +261,10 @@ export default {
     },
   },
   methods: {
+    calcWidthPercent(percent, windowWidth = window.innerWidth) {
+      const maxWidth = Math.min(windowWidth, this.hardMaxWidth);
+      return Math.floor(Math.min(maxWidth * (percent / 100), maxWidth));
+    },
     getWidthInCheck: debounce(function getWidthInCheck() {
       // make sure sidebar is never wider than the windowWidth
       if (this.width > this.maxWidth) {
