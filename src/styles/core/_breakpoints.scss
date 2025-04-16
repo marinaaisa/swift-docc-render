@@ -189,18 +189,7 @@ $breakpoint-attributes: (
           $width: percentage(math.div($content-width, $min-width));
         }
 
-        $safe-area-inset-top: 20px;
-        $safe-area-inset-right: 0px;
-        $safe-area-inset-bottom: 60px;
-        $safe-area-inset-left: 200px;
-
-        background-color: red;
-
         width: $width;
-        padding-top: $safe-area-inset-top !important;
-        padding-right: $safe-area-inset-right !important;
-        padding-bottom: $safe-area-inset-bottom !important;
-        padding-left: $safe-area-inset-left !important;
       }
     }
   }
