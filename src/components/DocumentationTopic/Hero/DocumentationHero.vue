@@ -26,12 +26,14 @@
     <div class="documentation-hero__above-content">
       <slot name="above-content" />
     </div>
-    <div
-      class="documentation-hero__content"
-      :class="{ 'short-hero': shortHero,
-        'extra-bottom-padding': shouldShowLanguageSwitcher,
-        'minimized-hero': enableMinimized }">
-      <slot />
+    <div class="documentation-hero__content-wrapper">
+      <div
+        class="documentation-hero__content"
+        :class="{ 'short-hero': shortHero,
+          'extra-bottom-padding': shouldShowLanguageSwitcher,
+          'minimized-hero': enableMinimized }">
+        <slot />
+      </div>
     </div>
   </div>
 </template>
@@ -210,6 +212,14 @@ $doc-hero-icon-dimension: 250px;
     position: relative;
     z-index: 1;
     @include dynamic-content-container;
+  }
+
+  &__content-wrapper {
+    @include inTargetIde() {
+      padding-left: env(safe-area-inset-left);
+      padding-top: env(safe-area-inset-top);
+      padding-right: env(safe-area-inset-right);
+    }
   }
 
   .minimized-hero {
