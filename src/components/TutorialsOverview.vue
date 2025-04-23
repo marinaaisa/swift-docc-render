@@ -136,6 +136,12 @@ export default {
 
     background: var(--color-tutorials-overview-fill-secondary,
       var(--color-tutorials-overview-background));
+
+    @include inTargetIde() {
+      padding-left: env(safe-area-inset-left);
+      padding-top: calc($nav-height-small + env(safe-area-inset-top));
+      padding-right: env(safe-area-inset-right);
+    }
   }
 
   // HACK - remove the gradient for firefox only
