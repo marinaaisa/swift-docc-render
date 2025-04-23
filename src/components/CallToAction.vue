@@ -112,6 +112,12 @@ export default {
 .call-to-action {
   padding: 65px 0;
   background: var(--color-call-to-action-background);
+
+  @include inTargetIde() {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: calc(65px + env(safe-area-inset-bottom));
+  }
 }
 
 .theme-dark .call-to-action {

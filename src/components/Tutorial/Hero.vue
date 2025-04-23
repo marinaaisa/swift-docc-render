@@ -194,6 +194,12 @@ export default {
   color: var(--color-tutorial-hero-text);
   position: relative;
 
+  @include inTargetIde() {
+    padding-left: env(safe-area-inset-left);
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+  }
+
   &.dark {
     @media screen {
       // ensure dark colors are always used, regardless of the selected
