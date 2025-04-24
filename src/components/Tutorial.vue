@@ -9,7 +9,7 @@
 -->
 
 <template>
-  <div class="tutorial">
+  <div class="tutorial" :style="paddingsStyle">
     <NavigationBar
       v-if="!isTargetIDE"
       :technology="metadata.category"
@@ -35,6 +35,7 @@ import { PortalTarget } from 'portal-vue';
 
 import AppStore from 'docc-render/stores/AppStore';
 import CodeThemeStore from 'docc-render/stores/CodeThemeStore';
+import WindowPaddingsStore from 'docc-render/stores/WindowPaddingsStore';
 import metadata from 'theme/mixins/metadata';
 import Hero from 'theme/components/Tutorial/Hero.vue';
 import NavigationBar from 'theme/components/Tutorial/NavigationBar.vue';
@@ -86,6 +87,11 @@ export default {
     'isTargetIDE',
     'store',
   ],
+  data() {
+    return {
+      windowPaddingsState: WindowPaddingsStore.state,
+    };
+  },
   computed: {
     heroSection() {
       return this.sections.find(({ kind }) => kind === 'hero');
@@ -103,6 +109,20 @@ export default {
     pageDescription: ({ heroSection, extractFirstParagraphText }) => (
       heroSection ? extractFirstParagraphText(heroSection.content) : null
     ),
+    paddingsStyle() {
+      const { windowPaddings } = this.windowPaddingsState;
+
+      if (!windowPaddings) {
+        return null;
+      }
+
+      return {
+        '--window-padding-top': windowPaddings.top,
+        '--window-padding-bottom': windowPaddings.bottom,
+        '--window-padding-right': windowPaddings.right,
+        '--window-padding-left': windowPaddings.left,
+      };
+    },
   },
   props: {
     sections: {
@@ -133,6 +153,9 @@ export default {
     handleCodeColorsChange(codeColors) {
       CodeThemeStore.updateCodeColors(codeColors);
     },
+    handleWindowPaddings(paddings) {
+      WindowPaddingsStore.updateWindowPaddings(paddings);
+    },
   },
   created() {
     AppStore.setAvailableLocales(this.metadata.availableLocales);
@@ -150,10 +173,13 @@ export default {
   },
   mounted() {
     this.$bridge.on('codeColors', this.handleCodeColorsChange);
+    this.$bridge.on('windowPaddings', this.handleWindowPaddings);
     this.$bridge.send({ type: 'requestCodeColors' });
+    this.$bridge.send({ type: 'requestWindowPaddings' });
   },
   beforeDestroy() {
     this.$bridge.off('codeColors', this.handleCodeColorsChange);
+    this.$bridge.off('windowPaddings', this.handleWindowPaddings);
   },
 };
 </script>

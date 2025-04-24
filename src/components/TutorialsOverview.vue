@@ -9,7 +9,7 @@
 -->
 
 <template>
-  <div class="tutorials-overview">
+  <div class="tutorials-overview" :style="paddingsStyle">
     <Nav
       v-if="!isTargetIDE"
       :sections="otherSections"
@@ -37,6 +37,7 @@
 <script>
 import AppStore from 'docc-render/stores/AppStore';
 import TutorialsOverviewStore from 'docc-render/stores/TutorialsOverviewStore';
+import WindowPaddingsStore from 'docc-render/stores/WindowPaddingsStore';
 import Nav from 'theme/components/TutorialsOverview/Nav.vue';
 import metadata from 'theme/mixins/metadata';
 import Hero from './TutorialsOverview/Hero.vue';
@@ -54,6 +55,11 @@ export default {
     Hero,
     LearningPath,
     Nav,
+  },
+  data() {
+    return {
+      windowPaddingsState: WindowPaddingsStore.state,
+    };
   },
   mixins: [metadata],
   constants: { SectionKind },
@@ -94,6 +100,25 @@ export default {
     heroSection: ({ heroSections }) => heroSections[0],
     store: () => TutorialsOverviewStore,
     title: ({ metadata: { category = '' } }) => category,
+    paddingsStyle() {
+      const { windowPaddings } = this.windowPaddingsState;
+
+      if (!windowPaddings) {
+        return null;
+      }
+
+      return {
+        '--window-padding-top': windowPaddings.top,
+        '--window-padding-bottom': windowPaddings.bottom,
+        '--window-padding-right': windowPaddings.right,
+        '--window-padding-left': windowPaddings.left,
+      };
+    },
+  },
+  methods: {
+    handleWindowPaddings(paddings) {
+      WindowPaddingsStore.updateWindowPaddings(paddings);
+    },
   },
   provide() {
     return {
@@ -104,6 +129,13 @@ export default {
     AppStore.setAvailableLocales(this.metadata.availableLocales);
     this.store.reset();
     this.store.setReferences(this.references);
+  },
+  mounted() {
+    this.$bridge.on('windowPaddings', this.handleWindowPaddings);
+    this.$bridge.send({ type: 'requestWindowPaddings' });
+  },
+  beforeDestroy() {
+    this.$bridge.off('windowPaddings', this.handleWindowPaddings);
   },
   watch: {
     // update the references in the store, in case they update, but the component is not re-created
@@ -138,9 +170,9 @@ export default {
       var(--color-tutorials-overview-background));
 
     @include inTargetIde() {
-      padding-left: env(safe-area-inset-left);
-      padding-top: calc($nav-height-small + env(safe-area-inset-top));
-      padding-right: env(safe-area-inset-right);
+      padding-left: var(--window-padding-left);
+      padding-top: calc($nav-height-small + var(--window-padding-top));
+      padding-right: var(--window-padding-right);
     }
   }
 

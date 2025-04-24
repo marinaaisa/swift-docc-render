@@ -13,6 +13,7 @@
     <DocumentationLayout
       v-if="topicData"
       v-bind="documentationLayoutProps"
+      :style="paddingsStyle"
     >
       <template #nav-title="{ className }">
         <component
@@ -62,6 +63,7 @@ import { compareVersions, combineVersions } from 'docc-render/utils/schema-versi
 import communicationBridgeUtils from 'docc-render/mixins/communicationBridgeUtils';
 import CodeTheme from 'docc-render/components/Tutorial/CodeTheme.vue';
 import CodeThemeStore from 'docc-render/stores/CodeThemeStore';
+import WindowPaddingsStore from 'docc-render/stores/WindowPaddingsStore';
 
 const { extractProps } = DocumentationTopic.methods;
 
@@ -87,6 +89,7 @@ export default {
       topicDataDefault: null,
       topicDataObjc: null,
       store: DocumentationTopicStore,
+      windowPaddingsState: WindowPaddingsStore.state,
     };
   },
   provide() {
@@ -259,10 +262,27 @@ export default {
         path: rootHierarchyReference.url,
         query: $route.query,
       } : null),
+    paddingsStyle() {
+      const { windowPaddings } = this.windowPaddingsState;
+
+      if (!windowPaddings) {
+        return null;
+      }
+
+      return {
+        '--window-padding-top': windowPaddings.top,
+        '--window-padding-bottom': windowPaddings.bottom,
+        '--window-padding-right': windowPaddings.right,
+        '--window-padding-left': windowPaddings.left,
+      };
+    },
   },
   methods: {
     handleCodeColorsChange(codeColors) {
       CodeThemeStore.updateCodeColors(codeColors);
+    },
+    handleWindowPaddings(paddings) {
+      WindowPaddingsStore.updateWindowPaddings(paddings);
     },
     applyObjcOverrides() {
       this.topicDataObjc = apply(clone(this.topicData), this.objcOverrides);
@@ -271,11 +291,14 @@ export default {
   mounted() {
     this.$bridge.on('contentUpdate', this.handleContentUpdateFromBridge);
     this.$bridge.on('codeColors', this.handleCodeColorsChange);
+    this.$bridge.on('windowPaddings', this.handleWindowPaddings);
     this.$bridge.send({ type: 'requestCodeColors' });
+    this.$bridge.send({ type: 'requestWindowPaddings' });
   },
   beforeDestroy() {
     this.$bridge.off('contentUpdate', this.handleContentUpdateFromBridge);
     this.$bridge.off('codeColors', this.handleCodeColorsChange);
+    this.$bridge.off('windowPaddings', this.handleWindowPaddings);
   },
   inject: {
     isTargetIDE: {

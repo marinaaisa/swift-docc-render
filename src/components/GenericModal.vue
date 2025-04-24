@@ -284,10 +284,10 @@ $modal-close-color: light-color(figure-gray-tertiary) !default;
       flex: 1;
       width: 100%;
       height: 100%;
-      padding-top: env(safe-area-inset-top);
-      padding-right: env(safe-area-inset-right);
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-left: env(safe-area-inset-left);
+      padding-top: var(--window-padding-top);
+      padding-right: var(--window-padding-right);
+      padding-bottom: var(--window-padding-bottom);
+      padding-left: var(--window-padding-left);
     }
   }
 
