@@ -36,5 +36,10 @@ export default {
   @include breakpoint(small) {
     padding-top: $tutorial-section-spacing-single-side;
   }
+
+  @include inTargetIde() {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 }
 </style>

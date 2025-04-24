@@ -111,6 +111,12 @@ export default {
 .learning-path {
   background: var(--color-tutorials-overview-fill, dark-color(fill));
   padding: rem(80px) 0;
+
+  @include inTargetIde() {
+    padding-left: env(safe-area-inset-left);
+    padding-bottom: calc(80px + env(safe-area-inset-top));
+    padding-right: env(safe-area-inset-right);
+  }
 }
 
 .main-container {
