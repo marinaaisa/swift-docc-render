@@ -113,9 +113,9 @@ export default {
   padding: rem(80px) 0;
 
   @include inTargetIde() {
-    padding-left: env(safe-area-inset-left);
-    padding-bottom: calc(80px + env(safe-area-inset-top));
-    padding-right: env(safe-area-inset-right);
+    padding-left: var(--window-padding-left);
+    padding-bottom: calc(80px + var(--window-padding-bottom));
+    padding-right: var(--window-padding-right);
   }
 }
 

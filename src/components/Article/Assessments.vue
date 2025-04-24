@@ -38,8 +38,8 @@ export default {
   }
 
   @include inTargetIde() {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+    padding-left: var(--window-padding-left);
+    padding-right: var(--window-padding-right);
   }
 }
 </style>

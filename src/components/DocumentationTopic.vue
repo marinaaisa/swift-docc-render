@@ -960,9 +960,9 @@ $space-size: 15px;
   display: flex;
   justify-content: center;
   @include inTargetIde() {
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+    padding-bottom: var(--window-padding-bottom);
+    padding-left: var(--window-padding-left);
+    padding-right: var(--window-padding-right);
   }
 
   .doc-content {

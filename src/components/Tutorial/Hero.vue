@@ -195,9 +195,9 @@ export default {
   position: relative;
 
   @include inTargetIde() {
-    padding-left: env(safe-area-inset-left);
-    padding-top: env(safe-area-inset-top);
-    padding-right: env(safe-area-inset-right);
+    padding-left: var(--window-padding-left);
+    padding-top: var(--window-padding-top);
+    padding-right: var(--window-padding-right);
   }
 
   &.dark {
