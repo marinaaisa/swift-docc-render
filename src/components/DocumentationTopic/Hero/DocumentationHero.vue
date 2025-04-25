@@ -169,11 +169,13 @@ $doc-hero-icon-dimension: 250px;
   .icon {
     position: absolute;
     margin-top: $doc-hero-icon-vertical-spacing;
+    margin-bottom: $doc-hero-icon-vertical-spacing;
     margin-right: $doc-hero-icon-spacing;
     right: 0;
+    bottom: 0;
     width: $doc-hero-icon-dimension;
     // create icon box with spacing in hero section
-    height: calc(100% - #{$doc-hero-icon-vertical-spacing * 2});
+    height: calc(100% - var(--window-padding-top) - #{$doc-hero-icon-vertical-spacing * 2});
     box-sizing: border-box;
 
     @include breakpoint(small) {
