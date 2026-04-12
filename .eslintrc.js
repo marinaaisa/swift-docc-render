@@ -70,5 +70,11 @@ module.exports = {
         jest: true,
       },
     },
+    {
+      files: ['.storybook/**/*.js', '**/*.stories.js'],
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+      },
+    },
   ],
 };
