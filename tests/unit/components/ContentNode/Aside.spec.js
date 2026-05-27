@@ -59,6 +59,19 @@ describe('Aside', () => {
     expect(label.text()).toBe('Custom Name');
   });
 
+  it('does not render a label for no-label kind', () => {
+    const wrapper = shallowMount(Aside, {
+      propsData: {
+        kind: 'no-label',
+      },
+      slots: {
+        default: '<p>content</p>',
+      },
+    });
+    expect(wrapper.classes('no-label')).toBe(true);
+    expect(wrapper.find('.label').exists()).toBe(false);
+  });
+
   it('renders slot content', () => {
     const wrapper = shallowMount(Aside, {
       propsData: {

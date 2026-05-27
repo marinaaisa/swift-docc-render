@@ -10,7 +10,7 @@
 
 <template>
   <aside :class="kind" :aria-label="kind">
-    <p class="label">{{ name || $t(label) }}</p>
+    <p v-if="!isNoLabel" class="label">{{ name || $t(label) }}</p>
     <slot />
   </aside>
 </template>
@@ -20,6 +20,7 @@ const Kind = {
   deprecated: 'deprecated',
   experiment: 'experiment',
   important: 'important',
+  'no-label': 'no-label',
   note: 'note',
   tip: 'tip',
   warning: 'warning',
@@ -40,6 +41,7 @@ export default {
   },
   computed: {
     label: ({ kind }) => `aside-kind.${kind}`,
+    isNoLabel: ({ kind }) => kind === Kind['no-label'],
   },
 };
 </script>
@@ -47,7 +49,7 @@ export default {
 <style scoped lang="scss">
 @import 'docc-render/styles/_core.scss';
 
-$aside-kinds: deprecated, experiment, important, note, tip, warning;
+$aside-kinds: deprecated, experiment, important, no-label, note, tip, warning;
 
 aside {
   break-inside: avoid;
