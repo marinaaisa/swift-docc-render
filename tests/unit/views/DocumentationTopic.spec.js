@@ -581,6 +581,30 @@ describe('DocumentationTopic', () => {
     expect(mocks.$bridge.off).toHaveBeenNthCalledWith(1, 'contentUpdate', expect.any(Function));
   });
 
+  it('keeps the locale availability of the default variant, when ObjC overrides replace `metadata`', async () => {
+    const variantOverrides = [
+      {
+        traits: [{ interfaceLanguage: 'occ' }],
+        patch: [
+          { op: 'add', path: '/metadata', value: { title: 'FooKit', role: 'article' } },
+        ],
+      },
+    ];
+    await wrapper.setData({
+      topicData: {
+        ...topicData,
+        metadata: { ...topicData.metadata, availableLanguages: ['en-US', 'ja-JP'] },
+        variantOverrides,
+      },
+    });
+    expect(wrapper.vm.topicProps.availableLanguages).toEqual(['en-US', 'ja-JP']);
+
+    wrapper.vm.applyObjcOverrides();
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.topicData.metadata.availableLanguages).toBeUndefined();
+    expect(wrapper.vm.topicProps.availableLanguages).toEqual(['en-US', 'ja-JP']);
+  });
+
   it('applies ObjC data when provided as overrides', async () => {
     const oldInterfaceLang = topicData.identifier.interfaceLanguage; // swift
     const newInterfaceLang = 'occ';

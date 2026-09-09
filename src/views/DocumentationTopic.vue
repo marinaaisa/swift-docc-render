@@ -146,8 +146,12 @@ export default {
       $route.path,
       topicProps.interfaceLanguage,
     ].join(),
-    topicProps() {
-      return extractProps(this.topicData);
+    topicProps({ topicDataDefault }) {
+      const { availableLanguages, availableLocales } = topicDataDefault?.metadata ?? {};
+      return {
+        ...extractProps(this.topicData),
+        availableLanguages: availableLanguages ?? availableLocales,
+      };
     },
     // The `hierarchy.paths` array will contain zero or more subarrays, each
     // representing a "path" of parent topic IDs that could be considered the
