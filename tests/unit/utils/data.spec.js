@@ -242,6 +242,47 @@ describe('fetchDataForRouteEnter', () => {
     window.fetch.mockRestore();
   });
 
+  it('aborts the navigation, when the redirect resolves to the route we are already at', async () => {
+    window.fetch = jest.fn().mockImplementationOnce(() => notFoundFetchResponse);
+
+    const currentRoute = {
+      name: 'documentation-topic-locale',
+      path: '/documentation/foo',
+      params: { pathMatch: '/foo' },
+    };
+    const router = { resolve: jest.fn(() => ({ route: currentRoute })) };
+
+    const data = await fetchDataForRouteEnter(localizedTo, currentRoute, next, router);
+    expect(router.resolve).toHaveBeenCalledWith({ ...localizedTo, params: {} });
+    expect(data).toBe(null);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledWith(false);
+
+    window.fetch.mockRestore();
+  });
+
+  it('redirects, when the redirect resolves to a different route', async () => {
+    window.fetch = jest.fn().mockImplementationOnce(() => notFoundFetchResponse);
+
+    const router = {
+      resolve: jest.fn(() => ({
+        route: {
+          name: 'documentation-topic-locale',
+          path: '/documentation/foo',
+          params: { pathMatch: '/foo' },
+        },
+      })),
+    };
+    await fetchDataForRouteEnter(localizedTo, {
+      name: 'documentation-topic-locale',
+      path: '/documentation/bar',
+      params: { pathMatch: '/bar' },
+    }, next, router);
+    expect(next).toHaveBeenCalledWith({ ...localizedTo, params: {} });
+
+    window.fetch.mockRestore();
+  });
+
   it('routes to 404 page when a page with an unsupported locale param returns 404', async () => {
     window.fetch = jest.fn().mockImplementationOnce(() => notFoundFetchResponse);
 

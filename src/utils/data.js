@@ -75,7 +75,15 @@ function transformDataPathToRoutePath(dataURL) {
   return match[1] + search;
 }
 
-export async function fetchDataForRouteEnter(to, from, next) {
+/**
+ * Fetches the data for a route.
+ * @param {Route} to
+ * @param {Route} from
+ * @param {Function} next
+ * @param {VueRouter} [router] - when provided, the locale fallback below can tell
+ * whether its redirect would resolve to the route we are already at.
+ */
+export async function fetchDataForRouteEnter(to, from, next, router) {
   const path = createDataPath(to.path);
 
   let data;
@@ -100,9 +108,19 @@ export async function fetchDataForRouteEnter(to, from, next) {
       // Destructure the locale out of the route params, leaving the rest.
       const { locale, ...paramsWithoutLocale } = to.params ?? {};
       if (locale && locale !== defaultLocale && localeIsValid(locale)) {
+        const target = { ...to, params: paramsWithoutLocale };
+        // A page may advertise a locale, for which no data exists. The redirect below
+        // can then resolve to the route we are already at, which vue-router rejects
+        // as a duplicate navigation, leaving the page without data.
+        // Abort instead and stay where we are.
+        const resolved = router ? router.resolve(target).route : null;
+        if (resolved && areEquivalentLocations(resolved, from)) {
+          next(false);
+          return null;
+        }
         // Call `next` with the same route but without the locale param,
         // redirecting to the non-localized version of the route.
-        next({ ...to, params: paramsWithoutLocale });
+        next(target);
         return null;
       }
       // route to 404 page if missing data, but not in IDE build

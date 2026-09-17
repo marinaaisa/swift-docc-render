@@ -709,4 +709,19 @@ describe('DocumentationTopic', () => {
     expect(dataUtils.fetchDataForRouteEnter)
       .toHaveBeenCalledWith(params.to, params.from, params.next);
   });
+
+  it('does not overwrite `topicData`, when the navigation was handled by `fetchDataForRouteEnter`', async () => {
+    // `fetchDataForRouteEnter` resolves with `null`, when it redirects or aborts
+    routeEnterMock.mockResolvedValue(null);
+    await wrapper.setData({ topicData });
+
+    const next = jest.fn();
+    DocumentationTopic.beforeRouteUpdate.call(
+      wrapper.vm, { path: '/ja-JP/documentation/foo', query: {} }, mocks.$route, next,
+    );
+    await flushPromises();
+
+    expect(wrapper.vm.topicData).toEqual(topicData);
+    expect(next).toHaveBeenCalledTimes(0);
+  });
 });

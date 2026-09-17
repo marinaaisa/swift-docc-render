@@ -55,6 +55,7 @@ describe('LocaleSelector', () => {
   let wrapper;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     wrapper = shallowMount(LocaleSelector, {
       mocks: {
         $router: {
@@ -72,16 +73,24 @@ describe('LocaleSelector', () => {
     expect(wrapper.findComponent('select').exists()).toBe(true);
   });
 
-  it('updates router when option is selected', () => {
+  it('updates router when option is selected', async () => {
     const cnOption = wrapper.findAll('option').at(1);
     const slug = cnOption.attributes('value');
-    cnOption.trigger('change');
+    await cnOption.trigger('change');
 
     expect(updateLocale).toHaveBeenCalledTimes(1);
     expect(getLocaleParam).toHaveBeenCalledTimes(1);
     expect(getLocaleParam).toHaveBeenCalledWith(slug);
     expect(AppStore.setPreferredLocale).toHaveBeenCalledTimes(1);
     expect(AppStore.setPreferredLocale).toHaveBeenCalledWith(slug);
+  });
+
+  it('does not change the locale, if the navigation is aborted', async () => {
+    wrapper.vm.$router.push.mockRejectedValue(new Error('Navigation aborted'));
+    await wrapper.findAll('option').at(1).trigger('change');
+
+    expect(updateLocale).toHaveBeenCalledTimes(0);
+    expect(AppStore.setPreferredLocale).toHaveBeenCalledTimes(0);
   });
 
   it('renders the icon', () => {

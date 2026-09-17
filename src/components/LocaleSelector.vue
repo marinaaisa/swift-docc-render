@@ -40,8 +40,12 @@ export default {
     ChevronThickIcon,
   },
   methods: {
-    updateRouter({ target: { value: slug } }) {
-      this.$router.push(getLocaleParam(slug));
+    async updateRouter({ target: { value: slug } }) {
+      try {
+        await this.$router.push(getLocaleParam(slug));
+      } catch (error) {
+        return;
+      }
       AppStore.setPreferredLocale(slug);
       updateLocale(slug, this);
     },

@@ -312,7 +312,9 @@ export default {
       this.applyObjcOverrides();
       next();
     } else if (shouldFetchDataForRouteUpdate(to, from)) {
-      fetchDataForRouteEnter(to, from, next).then((data) => {
+      fetchDataForRouteEnter(to, from, next, this.$router).then((data) => {
+        // `next` was already called, because the navigation was aborted or redirected
+        if (!data) return;
         this.topicDataObjc = null;
         this.topicData = data;
         if (to.query.language === Language.objectiveC.key.url && this.objcOverrides) {
