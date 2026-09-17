@@ -10,21 +10,26 @@
 
 <template>
   <div class="locale-selector">
-    <select
-      :value="$i18n.locale"
-      :aria-label="$t('select-language')"
-      @change="updateRouter"
-    >
-      <option
-        v-for="{ slug, name, code } in locales"
-        :key="slug"
-        :value="slug"
-        :lang="code"
+    <div class="locale-selector__select-wrapper">
+      <select
+        :value="$i18n.locale"
+        :aria-label="$t('select-language')"
+        @change="updateRouter"
       >
-        {{ name }}
-      </option>
-    </select>
-    <ChevronThickIcon class="icon-inline" />
+        <option
+          v-for="{ slug, name, code } in locales"
+          :key="slug"
+          :value="slug"
+          :lang="code"
+        >
+          {{ name }}
+        </option>
+      </select>
+      <ChevronThickIcon class="icon-inline" />
+    </div>
+    <p v-if="unavailableLocale" class="locale-selector__unavailable" role="status">
+      {{ $t('language-not-available', { language: unavailableLocale.name }) }}
+    </p>
   </div>
 </template>
 
@@ -39,11 +44,18 @@ export default {
   components: {
     ChevronThickIcon,
   },
+  data() {
+    return {
+      unavailableLocale: null,
+    };
+  },
   methods: {
     async updateRouter({ target: { value: slug } }) {
+      this.unavailableLocale = null;
       try {
         await this.$router.push(getLocaleParam(slug));
       } catch (error) {
+        this.unavailableLocale = this.locales.find(locale => locale.slug === slug);
         return;
       }
       AppStore.setPreferredLocale(slug);
@@ -77,7 +89,20 @@ select {
 }
 
 .locale-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.locale-selector__select-wrapper {
   position: relative;
+}
+
+.locale-selector__unavailable {
+  @include font-styles(locale-selector);
+  color: var(--color-figure-gray-secondary);
+  text-align: right;
+  margin-bottom: 10px;
 }
 
 .svg-icon.icon-inline {

@@ -93,6 +93,25 @@ describe('LocaleSelector', () => {
     expect(AppStore.setPreferredLocale).toHaveBeenCalledTimes(0);
   });
 
+  it('renders a message naming the language, if it is not available yet', async () => {
+    const message = () => wrapper.find('.locale-selector__unavailable');
+    expect(message().exists()).toBe(false);
+
+    wrapper.vm.$router.push.mockRejectedValue(new Error('Navigation aborted'));
+    await wrapper.findAll('option').at(1).trigger('change');
+    await wrapper.vm.$nextTick();
+
+    expect(message().exists()).toBe(true);
+    expect(message().attributes('role')).toBe('status');
+    expect(wrapper.vm.unavailableLocale).toEqual({ code: 'zh-CN', name: '简体中文', slug: 'cn' });
+
+    wrapper.vm.$router.push.mockResolvedValue(undefined);
+    await wrapper.findAll('option').at(0).trigger('change');
+    await wrapper.vm.$nextTick();
+
+    expect(message().exists()).toBe(false);
+  });
+
   it('renders the icon', () => {
     expect(wrapper.findComponent(ChevronThickIcon).exists()).toBe(true);
   });
